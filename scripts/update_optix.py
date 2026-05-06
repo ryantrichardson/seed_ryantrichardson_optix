@@ -60,8 +60,11 @@ def latest_short_interest(ticker):
     if not results:
         return None
 
-def get_date(row):
+    def get_date(row):
+        return row.get("settlement_date") or row.get("date") or ""
 
+    results = sorted(results, key=get_date, reverse=True)
+    return results[0]
 
 
 def latest_short_volume(ticker):
@@ -69,16 +72,18 @@ def latest_short_volume(ticker):
         "/stocks/v1/short-volume",
         {
             "ticker": ticker,
-            "limit": 1,
-            "sort": "date",
-            "order": "desc",
+            "limit": 100,
         },
     )
     results = payload.get("results") or []
     if not results:
         return None
-    return results[0]
 
+    def get_date(row):
+        return row.get("date") or ""
+
+    results = sorted(results, key=get_date, reverse=True)
+    return results[0]
 
 def score_from_short_interest(short_interest):
     if not short_interest:
