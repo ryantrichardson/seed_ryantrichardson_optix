@@ -60,7 +60,7 @@ def latest_short_interest(ticker):
     if not results:
         return None
 
-    def get_date(row):
+def get_date(row):
 
 
 
