@@ -308,9 +308,8 @@ def main():
             + put_call_volume_score
             + price_activity_score
         ) / 6.0
-
         debug_path = DATA_DIR / f"{ticker}_debug.json"
-                with debug_path.open("w") as f:
+        with debug_path.open("w") as f:
             json.dump(
                 {
                     "ticker": ticker,
@@ -329,6 +328,7 @@ def main():
                 indent=2,
                 default=str,
             )
+
 
 
         write_seed_file(ticker, optix)
