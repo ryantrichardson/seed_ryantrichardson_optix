@@ -53,15 +53,15 @@ def latest_short_interest(ticker):
         "/stocks/v1/short-interest",
         {
             "ticker": ticker,
-            "limit": 1,
-            "sort": "settlement_date",
-            "order": "desc",
+            "limit": 100,
         },
     )
     results = payload.get("results") or []
     if not results:
         return None
-    return results[0]
+
+    def get_date(row):
+
 
 
 def latest_short_volume(ticker):
