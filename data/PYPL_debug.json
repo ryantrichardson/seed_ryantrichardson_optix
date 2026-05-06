@@ -5,30 +5,30 @@
     "volume": 39099393.0
   },
   "short_interest": {
-    "settlement_date": "2022-02-15",
+    "settlement_date": "2026-04-15",
     "ticker": "PYPL",
-    "short_interest": 19751620,
-    "avg_daily_volume": 39162706,
-    "days_to_cover": 1.0
+    "short_interest": 45146895,
+    "avg_daily_volume": 12778361,
+    "days_to_cover": 3.53
   },
   "short_volume": {
     "ticker": "PYPL",
-    "date": "2024-06-28",
-    "total_volume": 4052775.0,
-    "short_volume": 982921.0,
-    "exempt_volume": 8901.0,
-    "non_exempt_volume": 974020.0,
-    "short_volume_ratio": 24.25,
-    "nyse_short_volume": 52662,
-    "nyse_short_volume_exempt": 3276,
-    "nasdaq_carteret_short_volume": 915070,
-    "nasdaq_carteret_short_volume_exempt": 5625,
-    "nasdaq_chicago_short_volume": 15189,
-    "nasdaq_chicago_short_volume_exempt": 0,
+    "date": "2026-05-05",
+    "total_volume": 13669892.923285,
+    "short_volume": 4324031.483809,
+    "exempt_volume": 421612.21841,
+    "non_exempt_volume": 3902419.265399,
+    "short_volume_ratio": 31.63,
+    "nyse_short_volume": 278463,
+    "nyse_short_volume_exempt": 0,
+    "nasdaq_carteret_short_volume": 3990176,
+    "nasdaq_carteret_short_volume_exempt": 418275,
+    "nasdaq_chicago_short_volume": 55392,
+    "nasdaq_chicago_short_volume_exempt": 3337,
     "adf_short_volume": 0,
     "adf_short_volume_exempt": 0
   },
-  "short_interest_score": 46.0,
-  "short_volume_score": 75.74696350031769,
-  "optix_first_pass": 53.624493916719615
+  "short_interest_score": 35.88,
+  "short_volume_score": 68.36821247923942,
+  "optix_first_pass": 50.708035413206574
 }
