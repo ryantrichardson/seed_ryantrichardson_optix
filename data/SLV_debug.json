@@ -1,0 +1,34 @@
+{
+  "ticker": "SLV",
+  "stock": {
+    "close": 65.91,
+    "volume": 12632131.0
+  },
+  "short_interest": {
+    "settlement_date": "2017-12-29",
+    "ticker": "SLV",
+    "short_interest": 12322027,
+    "avg_daily_volume": 7042368,
+    "days_to_cover": 1.75
+  },
+  "short_volume": {
+    "ticker": "SLV",
+    "date": "2024-02-06",
+    "total_volume": 2536789.0,
+    "short_volume": 802332.0,
+    "exempt_volume": 2818.0,
+    "non_exempt_volume": 799514.0,
+    "short_volume_ratio": 31.63,
+    "nyse_short_volume": 30329,
+    "nyse_short_volume_exempt": 147,
+    "nasdaq_carteret_short_volume": 765838,
+    "nasdaq_carteret_short_volume_exempt": 2671,
+    "nasdaq_chicago_short_volume": 6165,
+    "nasdaq_chicago_short_volume_exempt": 0,
+    "adf_short_volume": 0,
+    "adf_short_volume_exempt": 0
+  },
+  "short_interest_score": 43.0,
+  "short_volume_score": 68.37214289402863,
+  "optix_first_pass": 51.895357149004774
+}

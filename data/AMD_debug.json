@@ -1,0 +1,34 @@
+{
+  "ticker": "AMD",
+  "stock": {
+    "close": 355.26,
+    "volume": 64235117.0
+  },
+  "short_interest": {
+    "settlement_date": "2017-12-29",
+    "ticker": "AMD",
+    "short_interest": 167462528,
+    "avg_daily_volume": 33379755,
+    "days_to_cover": 5.02
+  },
+  "short_volume": {
+    "ticker": "AMD",
+    "date": "2024-02-06",
+    "total_volume": 42029257.0,
+    "short_volume": 21329595.0,
+    "exempt_volume": 156630.0,
+    "non_exempt_volume": 21172965.0,
+    "short_volume_ratio": 50.75,
+    "nyse_short_volume": 1644391,
+    "nyse_short_volume_exempt": 34002,
+    "nasdaq_carteret_short_volume": 19517287,
+    "nasdaq_carteret_short_volume_exempt": 122628,
+    "nasdaq_chicago_short_volume": 167917,
+    "nasdaq_chicago_short_volume_exempt": 0,
+    "adf_short_volume": 0,
+    "adf_short_volume_exempt": 0
+  },
+  "short_interest_score": 29.92,
+  "short_volume_score": 49.25060178912989,
+  "optix_first_pass": 46.528433631521644
+}

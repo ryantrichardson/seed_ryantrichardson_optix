@@ -1,0 +1,34 @@
+{
+  "ticker": "PYPL",
+  "stock": {
+    "close": 46.49,
+    "volume": 39099393.0
+  },
+  "short_interest": {
+    "settlement_date": "2017-12-29",
+    "ticker": "PYPL",
+    "short_interest": 16802574,
+    "avg_daily_volume": 5397974,
+    "days_to_cover": 3.11
+  },
+  "short_volume": {
+    "ticker": "PYPL",
+    "date": "2024-02-06",
+    "total_volume": 7899485.0,
+    "short_volume": 4291168.0,
+    "exempt_volume": 23729.0,
+    "non_exempt_volume": 4267439.0,
+    "short_volume_ratio": 54.32,
+    "nyse_short_volume": 1747860,
+    "nyse_short_volume_exempt": 16729,
+    "nasdaq_carteret_short_volume": 2525246,
+    "nasdaq_carteret_short_volume_exempt": 7000,
+    "nasdaq_chicago_short_volume": 18062,
+    "nasdaq_chicago_short_volume_exempt": 0,
+    "adf_short_volume": 0,
+    "adf_short_volume_exempt": 0
+  },
+  "short_interest_score": 37.56,
+  "short_volume_score": 45.67787646916223,
+  "optix_first_pass": 47.20631274486038
+}
