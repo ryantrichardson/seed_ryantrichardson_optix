@@ -277,10 +277,13 @@ def main():
     print(f"Tickers: {tickers}")
 
     for ticker in tickers:
-        print(f"\nProcessing {        stock = latest_stock_close(ticker)
+        print(f"\nProcessing {ticker}")
+
+        stock = latest_stock_close(ticker)
         short_interest = latest_short_interest(ticker)
         short_volume = latest_short_volume(ticker)
         options_summary = latest_options_summary(ticker)
+
 
         short_interest_score = score_from_short_interest(short_interest)
         short_volume_score = score_from_short_volume(short_volume)
