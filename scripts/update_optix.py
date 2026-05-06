@@ -77,6 +77,111 @@ def latest_short_volume(ticker):
     if not results:
         return None
     return results[0]
+    
+def latest_options_summary(ticker):
+    path = f"/v3/snapshot/options/{ticker}"
+    params = {
+        "limit": 250,
+        "sort": "ticker",
+        "order": "asc",
+    }
+
+    call_volume = 0.0
+    put_volume = 0.0
+    call_open_interest = 0.0
+    put_open_interest = 0.0
+    contract_count = 0
+    page_count = 0
+
+    while True:
+        payload = get_json(path, params)
+        results = payload.get("results") or []
+
+        for contract in results:
+            details = contract.get("details") or {}
+            day = contract.get("day") or {}
+
+            contract_type = details.get("contract_type")
+            volume = day.get("volume") or 0
+            open_interest = contract.get("open_interest") or 0
+
+            try:
+                volume = float(volume)
+            except Exception:
+                volume = 0.0
+
+            try:
+                open_interest = float(open_interest)
+            except Exception:
+                open_interest = 0.0
+
+            if contract_type == "call":
+                call_volume += volume
+                call_open_interest += open_interest
+            elif contract_type == "put":
+                put_volume += volume
+                put_open_interest += open_interest
+
+            contract_count += 1
+
+        page_count += 1
+
+        next_url = payload.get("next_url")
+        if not next_url:
+            break
+
+        # Massive next_url already contains the next page query.
+        # Convert it back into path/params for get_json.
+        if "api.massive.com" in next_url:
+            path = next_url.replace("https://api.massive.com", "").split("?")[0]
+            query = next_url.split("?", 1)[1] if "?" in next_url else ""
+            params = {}
+            for part in query.split("&"):
+                if not part:
+                    continue
+                key, _, value = part.partition("=")
+                if key != "apiKey":
+                    params[key] = value
+        else:
+            break
+
+        if page_count > 50:
+            break
+
+    put_call_volume_ratio = put_volume / call_volume if call_volume > 0 else None
+    put_call_open_interest_ratio = put_open_interest / call_open_interest if call_open_interest > 0 else None
+
+    return {
+        "contract_count": contract_count,
+        "call_volume": call_volume,
+        "put_volume": put_volume,
+        "call_open_interest": call_open_interest,
+        "put_open_interest": put_open_interest,
+        "put_call_volume_ratio": put_call_volume_ratio,
+        "put_call_open_interest_ratio": put_call_open_interest_ratio,
+    }
+    
+def score_from_put_call_ratio(ratio):
+    if ratio is None:
+        return 50.0
+
+    try:
+        ratio = float(ratio)
+    except Exception:
+        return 50.0
+
+    # Lower put/call = more bullish. Higher put/call = more bearish.
+    # Ratio around 1.0 is neutral.
+    score = 100.0 - (ratio * 50.0)
+    return max(0.0, min(100.0, score))
+
+
+def score_from_price_activity(stock):
+    if not stock:
+        return 50.0
+
+    # Placeholder neutral until we add historical price momentum.
+    return 50.0
 
 
 def score_from_short_interest(short_interest):
@@ -172,42 +277,56 @@ def main():
     print(f"Tickers: {tickers}")
 
     for ticker in tickers:
-        print(f"\nProcessing {ticker}")
-
-        stock = latest_stock_close(ticker)
+        print(f"\nProcessing {        stock = latest_stock_close(ticker)
         short_interest = latest_short_interest(ticker)
         short_volume = latest_short_volume(ticker)
+        options_summary = latest_options_summary(ticker)
 
         short_interest_score = score_from_short_interest(short_interest)
         short_volume_score = score_from_short_volume(short_volume)
+        put_call_volume_score = score_from_put_call_ratio(options_summary.get("put_call_volume_ratio"))
+        put_call_open_interest_score = score_from_put_call_ratio(options_summary.get("put_call_open_interest_ratio"))
+        price_activity_score = score_from_price_activity(stock)
 
-        # Temporary first-pass score until options data is added.
-        # 50 represents neutral for missing components.
+        # Six-part Optix-style score:
+        # 1 analyst proxy: neutral for now
+        # 2 short interest / average volume
+        # 3 short volume / short pressure
+        # 4 put/call open interest
+        # 5 put/call volume
+        # 6 price activity
+        analyst_score = 50.0
+
         optix = (
-            short_interest_score
+            analyst_score
+            + short_interest_score
             + short_volume_score
-            + 50.0
-            + 50.0
-            + 50.0
-            + 50.0
+            + put_call_open_interest_score
+            + put_call_volume_score
+            + price_activity_score
         ) / 6.0
 
         debug_path = DATA_DIR / f"{ticker}_debug.json"
-        with debug_path.open("w") as f:
+                with debug_path.open("w") as f:
             json.dump(
                 {
                     "ticker": ticker,
                     "stock": stock,
                     "short_interest": short_interest,
                     "short_volume": short_volume,
+                    "options_summary": options_summary,
                     "short_interest_score": short_interest_score,
                     "short_volume_score": short_volume_score,
+                    "put_call_volume_score": put_call_volume_score,
+                    "put_call_open_interest_score": put_call_open_interest_score,
+                    "price_activity_score": price_activity_score,
                     "optix_first_pass": optix,
                 },
                 f,
                 indent=2,
                 default=str,
             )
+
 
         write_seed_file(ticker, optix)
 
