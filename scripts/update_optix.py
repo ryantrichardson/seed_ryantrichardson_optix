@@ -357,6 +357,38 @@ def write_component_history(ticker, stock, short_interest, short_volume, options
 
     print(f"Wrote component history {path}")
 def write_seed_file(ticker, optix_value):
+    def write_tradestation_file(ticker, optix_value):
+    path = DATA_DIR / f"{ticker}_TS.txt"
+    today = date.today().strftime("%m/%d/%Y")
+
+    rows = []
+    if path.exists():
+        with path.open("r", newline="") as f:
+            rows = list(csv.DictReader(f))
+
+    rows = [row for row in rows if row["Date"] != today]
+
+    value = f"{optix_value:.4f}"
+
+    rows.append(
+        {
+            "Date": today,
+            "Open": value,
+            "High": value,
+            "Low": value,
+            "Close": value,
+            "Volume": "0",
+        }
+    )
+
+    rows.sort(key=lambda r: r["Date"])
+
+    with path.open("w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=["Date", "Open", "High", "Low", "Close", "Volume"])
+        writer.writeheader()
+        writer.writerows(rows)
+
+    print(f"Wrote TradeStation file {path}: {value}")
     path = DATA_DIR / f"{ticker}_OPTIX.csv"
     today = date.today().isoformat()
 
@@ -458,6 +490,7 @@ def main():
 
         write_component_history(ticker, stock, short_interest, short_volume, options_summary, optix)
         write_seed_file(ticker, optix)
+        write_tradestation_file(ticker, optix)
 
     print("\nDone.")
 
