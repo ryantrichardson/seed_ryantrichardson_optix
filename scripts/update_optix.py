@@ -182,7 +182,69 @@ def score_from_price_activity(stock):
 
     # Placeholder neutral until we add historical price momentum.
     return 50.0
+def safe_float(value):
+    if value in (None, ""):
+        return None
+    try:
+        return float(value)
+    except Exception:
+        return None
 
+
+def percentile_rank(values, current_value):
+    clean_values = [v for v in values if v is not None]
+
+    if current_value is None or not clean_values:
+        return 50.0
+
+    count = sum(1 for v in clean_values if current_value >= v)
+    return 100.0 * count / len(clean_values)
+
+
+def inverse_percentile_rank(values, current_value):
+    return 100.0 - percentile_rank(values, current_value)
+
+
+def calculate_ranked_optix(ticker, raw_components):
+    path = DATA_DIR / f"{ticker}_components.csv"
+
+    if not path.exists():
+        return raw_components["fallback_optix"]
+
+    with path.open("r", newline="") as f:
+        rows = list(csv.DictReader(f))
+
+    if len(rows) < 20:
+        return raw_components["fallback_optix"]
+
+    days_to_cover_values = [safe_float(row.get("days_to_cover")) for row in rows]
+    short_volume_ratio_values = [safe_float(row.get("short_volume_ratio")) for row in rows]
+    put_call_volume_values = [safe_float(row.get("put_call_volume_ratio")) for row in rows]
+    put_call_oi_values = [safe_float(row.get("put_call_open_interest_ratio")) for row in rows]
+
+    current_days_to_cover = raw_components["days_to_cover"]
+    current_short_volume_ratio = raw_components["short_volume_ratio"]
+    current_put_call_volume_ratio = raw_components["put_call_volume_ratio"]
+    current_put_call_oi_ratio = raw_components["put_call_open_interest_ratio"]
+
+    analyst_score = 50.0
+    price_activity_score = raw_components["price_activity_score"]
+
+    short_interest_score = inverse_percentile_rank(days_to_cover_values, current_days_to_cover)
+    short_volume_score = inverse_percentile_rank(short_volume_ratio_values, current_short_volume_ratio)
+    put_call_volume_score = inverse_percentile_rank(put_call_volume_values, current_put_call_volume_ratio)
+    put_call_open_interest_score = inverse_percentile_rank(put_call_oi_values, current_put_call_oi_ratio)
+
+    optix = (
+        analyst_score
+        + short_interest_score
+        + short_volume_score
+        + put_call_open_interest_score
+        + put_call_volume_score
+        + price_activity_score
+    ) / 6.0
+
+    return max(0.0, min(100.0, optix))
 
 def score_from_short_interest(short_interest):
     if not short_interest:
@@ -362,6 +424,16 @@ def main():
             + put_call_volume_score
             + price_activity_score
         ) / 6.0
+                raw_components = {
+            "days_to_cover": safe_float(short_interest.get("days_to_cover")) if short_interest else None,
+            "short_volume_ratio": safe_float(short_volume.get("short_volume_ratio")) if short_volume else None,
+            "put_call_volume_ratio": safe_float(options_summary.get("put_call_volume_ratio")),
+            "put_call_open_interest_ratio": safe_float(options_summary.get("put_call_open_interest_ratio")),
+            "price_activity_score": price_activity_score,
+            "fallback_optix": optix,
+        }
+
+        optix = calculate_ranked_optix(ticker, raw_components)
         debug_path = DATA_DIR / f"{ticker}_debug.json"
         with debug_path.open("w") as f:
             json.dump(
