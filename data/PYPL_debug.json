@@ -1,8 +1,8 @@
 {
   "ticker": "PYPL",
   "stock": {
-    "close": 46.49,
-    "volume": 39099393.0
+    "close": 46.27,
+    "volume": 19818479.0
   },
   "short_interest": {
     "settlement_date": "2026-04-15",
@@ -13,34 +13,34 @@
   },
   "short_volume": {
     "ticker": "PYPL",
-    "date": "2026-05-05",
-    "total_volume": 13669892.923285,
-    "short_volume": 4324031.483809,
-    "exempt_volume": 421612.21841,
-    "non_exempt_volume": 3902419.265399,
-    "short_volume_ratio": 31.63,
-    "nyse_short_volume": 278463,
+    "date": "2026-05-06",
+    "total_volume": 5681982.400647,
+    "short_volume": 1708303.678912,
+    "exempt_volume": 67608.67379,
+    "non_exempt_volume": 1640695.005122,
+    "short_volume_ratio": 30.07,
+    "nyse_short_volume": 153089,
     "nyse_short_volume_exempt": 0,
-    "nasdaq_carteret_short_volume": 3990176,
-    "nasdaq_carteret_short_volume_exempt": 418275,
-    "nasdaq_chicago_short_volume": 55392,
-    "nasdaq_chicago_short_volume_exempt": 3337,
+    "nasdaq_carteret_short_volume": 1537267,
+    "nasdaq_carteret_short_volume_exempt": 67493,
+    "nasdaq_chicago_short_volume": 17947,
+    "nasdaq_chicago_short_volume_exempt": 115,
     "adf_short_volume": 0,
     "adf_short_volume_exempt": 0
   },
   "options_summary": {
     "contract_count": 1124,
-    "call_volume": 62134.0,
-    "put_volume": 34980.0,
+    "call_volume": 66588.0,
+    "put_volume": 35921.0,
     "call_open_interest": 1406072.0,
     "put_open_interest": 615578.0,
-    "put_call_volume_ratio": 0.5629767920945055,
+    "put_call_volume_ratio": 0.5394515528323421,
     "put_call_open_interest_ratio": 0.4377997712777155
   },
   "short_interest_score": 35.88,
-  "short_volume_score": 68.36821247923942,
-  "put_call_volume_score": 71.85116039527472,
+  "short_volume_score": 69.9347242131993,
+  "put_call_volume_score": 73.02742235838289,
   "put_call_open_interest_score": 78.11001143611422,
   "price_activity_score": 50.0,
-  "optix_first_pass": 59.03489738510473
+  "optix_first_pass": 59.49202633461607
 }

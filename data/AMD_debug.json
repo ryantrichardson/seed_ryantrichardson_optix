@@ -1,8 +1,8 @@
 {
   "ticker": "AMD",
   "stock": {
-    "close": 355.26,
-    "volume": 64235117.0
+    "close": 421.39,
+    "volume": 87718171.0
   },
   "short_interest": {
     "settlement_date": "2026-04-15",
@@ -13,34 +13,34 @@
   },
   "short_volume": {
     "ticker": "AMD",
-    "date": "2026-05-05",
-    "total_volume": 23118703.892105,
-    "short_volume": 11983274.495551,
-    "exempt_volume": 30636.0,
-    "non_exempt_volume": 11952638.495551,
-    "short_volume_ratio": 51.83,
-    "nyse_short_volume": 322826,
+    "date": "2026-05-06",
+    "total_volume": 40325151.541765,
+    "short_volume": 20083781.579082,
+    "exempt_volume": 57466.0,
+    "non_exempt_volume": 20026315.579082,
+    "short_volume_ratio": 49.8,
+    "nyse_short_volume": 571996,
     "nyse_short_volume_exempt": 0,
-    "nasdaq_carteret_short_volume": 11422475,
-    "nasdaq_carteret_short_volume_exempt": 30636,
-    "nasdaq_chicago_short_volume": 237972,
+    "nasdaq_carteret_short_volume": 19045179,
+    "nasdaq_carteret_short_volume_exempt": 57466,
+    "nasdaq_chicago_short_volume": 466606,
     "nasdaq_chicago_short_volume_exempt": 0,
     "adf_short_volume": 0,
     "adf_short_volume_exempt": 0
   },
   "options_summary": {
     "contract_count": 4186,
-    "call_volume": 680185.0,
-    "put_volume": 563597.0,
+    "call_volume": 739507.0,
+    "put_volume": 605283.0,
     "call_open_interest": 1621411.0,
     "put_open_interest": 1674648.0,
-    "put_call_volume_ratio": 0.8285936914221866,
+    "put_call_volume_ratio": 0.818495294838318,
     "put_call_open_interest_ratio": 1.0328337478899552
   },
   "short_interest_score": 45.32,
-  "short_volume_score": 48.16632216288185,
-  "put_call_volume_score": 58.570315428890666,
+  "short_volume_score": 50.19539713748847,
+  "put_call_volume_score": 59.0752352580841,
   "put_call_open_interest_score": 48.35831260550224,
   "price_activity_score": 50.0,
-  "optix_first_pass": 50.069158366212456
+  "optix_first_pass": 50.491490833512465
 }

@@ -1,8 +1,8 @@
 {
   "ticker": "SOXL",
   "stock": {
-    "close": 144.16,
-    "volume": 52130075.0
+    "close": 165.85,
+    "volume": 65578167.0
   },
   "short_interest": {
     "settlement_date": "2026-04-15",
@@ -13,34 +13,34 @@
   },
   "short_volume": {
     "ticker": "SOXL",
-    "date": "2026-05-05",
-    "total_volume": 17298109.400425,
-    "short_volume": 8338170.909729,
-    "exempt_volume": 80063.0,
-    "non_exempt_volume": 8258107.909729,
-    "short_volume_ratio": 48.2,
-    "nyse_short_volume": 149597,
+    "date": "2026-05-06",
+    "total_volume": 20356011.613118,
+    "short_volume": 11613470.338529,
+    "exempt_volume": 56218.0,
+    "non_exempt_volume": 11557252.338529,
+    "short_volume_ratio": 57.05,
+    "nyse_short_volume": 166001,
     "nyse_short_volume_exempt": 0,
-    "nasdaq_carteret_short_volume": 8002371,
-    "nasdaq_carteret_short_volume_exempt": 79699,
-    "nasdaq_chicago_short_volume": 186201,
-    "nasdaq_chicago_short_volume_exempt": 364,
+    "nasdaq_carteret_short_volume": 11183809,
+    "nasdaq_carteret_short_volume_exempt": 56192,
+    "nasdaq_chicago_short_volume": 263659,
+    "nasdaq_chicago_short_volume_exempt": 26,
     "adf_short_volume": 0,
     "adf_short_volume_exempt": 0
   },
   "options_summary": {
     "contract_count": 3112,
-    "call_volume": 102177.0,
-    "put_volume": 141895.0,
+    "call_volume": 123817.0,
+    "put_volume": 158965.0,
     "call_open_interest": 508525.0,
     "put_open_interest": 567153.0,
-    "put_call_volume_ratio": 1.3887176174677276,
+    "put_call_volume_ratio": 1.2838705508936576,
     "put_call_open_interest_ratio": 1.1152903003785457
   },
   "short_interest_score": 46.0,
-  "short_volume_score": 51.79721253512167,
-  "put_call_volume_score": 30.56411912661362,
+  "short_volume_score": 42.94820341404725,
+  "put_call_volume_score": 35.80647245531712,
   "put_call_open_interest_score": 44.235484981072716,
   "price_activity_score": 50.0,
-  "optix_first_pass": 45.432802773801335
+  "optix_first_pass": 44.831693475072846
 }
