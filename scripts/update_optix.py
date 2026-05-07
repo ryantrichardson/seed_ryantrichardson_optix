@@ -357,9 +357,8 @@ def write_component_history(ticker, stock, short_interest, short_volume, options
 
     print(f"Wrote component history {path}")
     
-def write_seed_file(ticker, optix_value):
-    def write_tradestation_file(ticker, optix_value):
-        path = DATA_DIR / f"{ticker}_TS.txt"
+def write_tradestation_file(ticker, optix_value):
+    path = DATA_DIR / f"{ticker}_TS.txt"
     today = date.today().strftime("%m/%d/%Y")
 
     rows = []
