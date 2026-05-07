@@ -389,35 +389,6 @@ def write_seed_file(ticker, optix_value):
         writer.writerows(rows)
 
     print(f"Wrote TradeStation file {path}: {value}")
-    path = DATA_DIR / f"{ticker}_OPTIX.csv"
-    today = date.today().isoformat()
-
-    rows = []
-    if path.exists():
-        with path.open("r", newline="") as f:
-            rows = list(csv.DictReader(f))
-
-    rows = [row for row in rows if row["time"] != today]
-
-    rows.append(
-        {
-            "time": today,
-            "open": f"{optix_value:.4f}",
-            "high": f"{optix_value:.4f}",
-            "low": f"{optix_value:.4f}",
-            "close": f"{optix_value:.4f}",
-            "volume": "0",
-        }
-    )
-
-    rows.sort(key=lambda r: r["time"])
-
-    with path.open("w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["time", "open", "high", "low", "close", "volume"])
-        writer.writeheader()
-        writer.writerows(rows)
-
-    print(f"Wrote {path}: {optix_value:.4f}")
 
 
 def main():
