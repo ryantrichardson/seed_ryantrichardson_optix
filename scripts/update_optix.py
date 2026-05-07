@@ -424,7 +424,7 @@ def main():
             + put_call_volume_score
             + price_activity_score
         ) / 6.0
-         raw_components = {
+        raw_components = {
             "days_to_cover": safe_float(short_interest.get("days_to_cover")) if short_interest else None,
             "short_volume_ratio": safe_float(short_volume.get("short_volume_ratio")) if short_volume else None,
             "put_call_volume_ratio": safe_float(options_summary.get("put_call_volume_ratio")),
