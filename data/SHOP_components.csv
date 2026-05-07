@@ -1,0 +1,2 @@
+date,ticker,close,volume,short_interest,avg_daily_volume,days_to_cover,short_volume_ratio,call_volume,put_volume,put_call_volume_ratio,call_open_interest,put_open_interest,put_call_open_interest_ratio,optix
+2026-05-07,SHOP,105.44,24641671.0,21740318,7939788,2.74,25.22,44749.0,34855.0,0.7789000871527856,633258.0,342694.0,0.5411601590504976,57.9689517212312

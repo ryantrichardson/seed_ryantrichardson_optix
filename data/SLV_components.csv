@@ -1,0 +1,2 @@
+date,ticker,close,volume,short_interest,avg_daily_volume,days_to_cover,short_volume_ratio,call_volume,put_volume,put_call_volume_ratio,call_open_interest,put_open_interest,put_call_open_interest_ratio,optix
+2026-05-07,SLV,70.13,24519548.0,31199072,28559064,1.09,46.41,432996.0,226297.0,0.522630694047982,5234917.0,2846169.0,0.5436894223919883,57.65226338793688
