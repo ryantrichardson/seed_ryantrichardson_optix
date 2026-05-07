@@ -30,17 +30,17 @@
   },
   "options_summary": {
     "contract_count": 3716,
-    "call_volume": 80803.0,
-    "put_volume": 133504.0,
+    "call_volume": 91829.0,
+    "put_volume": 149455.0,
     "call_open_interest": 527074.0,
     "put_open_interest": 594425.0,
-    "put_call_volume_ratio": 1.6522158830736482,
+    "put_call_volume_ratio": 1.6275359635844886,
     "put_call_open_interest_ratio": 1.1277828160751622
   },
   "short_interest_score": 46.0,
   "short_volume_score": 42.94820341404725,
-  "put_call_volume_score": 17.389205846317594,
+  "put_call_volume_score": 18.623201820775563,
   "put_call_open_interest_score": 43.61085919624189,
   "price_activity_score": 50.0,
-  "optix_first_pass": 41.658044742767785
+  "optix_first_pass": 41.86371073851078
 }
