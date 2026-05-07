@@ -81,7 +81,7 @@ def latest_short_volume(ticker):
 def latest_options_summary(ticker):
     path = f"/v3/snapshot/options/{ticker}"
     params = {
-        "limit": 1000,
+        "limit": 250,
         "sort": "ticker",
         "order": "asc",
     }
