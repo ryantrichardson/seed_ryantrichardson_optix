@@ -239,7 +239,61 @@ def score_from_short_volume(short_volume):
 
     return max(0.0, min(100.0, 100.0 - ratio * 100.0))
 
+def write_component_history(ticker, stock, short_interest, short_volume, options_summary, optix_value):
+    path = DATA_DIR / f"{ticker}_components.csv"
+    today = date.today().isoformat()
 
+    row = {
+        "date": today,
+        "ticker": ticker,
+        "close": stock.get("close") if stock else "",
+        "volume": stock.get("volume") if stock else "",
+        "short_interest": short_interest.get("short_interest") if short_interest else "",
+        "avg_daily_volume": short_interest.get("avg_daily_volume") if short_interest else "",
+        "days_to_cover": short_interest.get("days_to_cover") if short_interest else "",
+        "short_volume_ratio": short_volume.get("short_volume_ratio") if short_volume else "",
+        "call_volume": options_summary.get("call_volume"),
+        "put_volume": options_summary.get("put_volume"),
+        "put_call_volume_ratio": options_summary.get("put_call_volume_ratio"),
+        "call_open_interest": options_summary.get("call_open_interest"),
+        "put_open_interest": options_summary.get("put_open_interest"),
+        "put_call_open_interest_ratio": options_summary.get("put_call_open_interest_ratio"),
+        "optix": optix_value,
+    }
+
+    rows = []
+    if path.exists():
+        with path.open("r", newline="") as f:
+            rows = list(csv.DictReader(f))
+
+    rows = [existing for existing in rows if existing["date"] != today]
+    rows.append(row)
+    rows.sort(key=lambda r: r["date"])
+
+    fieldnames = [
+        "date",
+        "ticker",
+        "close",
+        "volume",
+        "short_interest",
+        "avg_daily_volume",
+        "days_to_cover",
+        "short_volume_ratio",
+        "call_volume",
+        "put_volume",
+        "put_call_volume_ratio",
+        "call_open_interest",
+        "put_open_interest",
+        "put_call_open_interest_ratio",
+        "optix",
+    ]
+
+    with path.open("w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    print(f"Wrote component history {path}")
 def write_seed_file(ticker, optix_value):
     path = DATA_DIR / f"{ticker}_OPTIX.csv"
     today = date.today().isoformat()
@@ -330,7 +384,7 @@ def main():
             )
 
 
-
+        write_component_history(ticker, stock, short_interest, short_volume, options_summary, optix)
         write_seed_file(ticker, optix)
 
     print("\nDone.")
