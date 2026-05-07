@@ -22,7 +22,7 @@ def get_json(path, params=None):
     params = dict(params or {})
     params["apiKey"] = API_KEY
     url = f"{BASE_URL}{path}"
-    response = requests.get(url, params=params, timeout=30)
+    response = requests.get(url, params=params, timeout=90)
     print(f"GET {response.url.replace(API_KEY, '***')}")
     response.raise_for_status()
     return response.json()
@@ -81,7 +81,7 @@ def latest_short_volume(ticker):
 def latest_options_summary(ticker):
     path = f"/v3/snapshot/options/{ticker}"
     params = {
-        "limit": 250,
+        "limit": 1000,
         "sort": "ticker",
         "order": "asc",
     }
