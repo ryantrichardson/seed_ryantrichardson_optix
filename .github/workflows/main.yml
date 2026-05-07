@@ -27,7 +27,7 @@ jobs:
       - name: Run updater
         env:
           MASSIVE_API_KEY: ${{ secrets.MASSIVE_API_KEY }}
-        run: python scripts/update_optix.py
+        run: python scripts/backfill_components.py
       - name: Commit updated data
         run: |
           git config user.name "github-actions"
