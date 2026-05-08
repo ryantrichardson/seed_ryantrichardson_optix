@@ -1,38 +1,30 @@
 {
   "ticker": "AMD",
   "rows_written": 502,
+  "historical_options_days_found": 124,
   "latest_row": {
     "date": "2026-05-08",
     "ticker": "AMD",
-    "close": 445.085,
-    "volume": 36643538.815869,
+    "close": 455.0401,
+    "volume": 49892901.173932,
     "short_interest": 35648460.0,
     "avg_daily_volume": 30574745.0,
     "days_to_cover": 1.17,
     "short_volume_ratio": null,
-    "momentum_20d": 0.8163769180541951,
-    "call_volume": 645309.0,
-    "put_volume": 409360.0,
-    "put_call_volume_ratio": 0.6343627626454923,
-    "call_open_interest": 1740830.0,
-    "put_open_interest": 1852504.0,
-    "put_call_open_interest_ratio": 1.064149859549755,
+    "momentum_20d": 0.8570033463924258,
+    "call_volume": 524297.0,
+    "put_volume": 265440.0,
+    "put_call_volume_ratio": 0.5062779302570871,
+    "call_open_interest": "",
+    "put_open_interest": "",
+    "put_call_open_interest_ratio": null,
     "analyst_score": 50.0,
     "short_interest_score": 34.00402414486922,
     "short_volume_score": 50.0,
-    "put_call_volume_score": 0.0,
-    "put_call_open_interest_score": 0.0,
-    "price_activity_score": 99.79253112033194,
-    "optix": 38.966092544200194
+    "put_call_volume_score": 0.8064516129032313,
+    "put_call_open_interest_score": 50.0,
+    "price_activity_score": 100.0,
+    "optix": 47.46841262629541
   },
-  "latest_options_summary": {
-    "contract_count": 5276,
-    "call_volume": 645309.0,
-    "put_volume": 409360.0,
-    "call_open_interest": 1740830.0,
-    "put_open_interest": 1852504.0,
-    "put_call_volume_ratio": 0.6343627626454923,
-    "put_call_open_interest_ratio": 1.064149859549755
-  },
-  "note": "Historical rows use stock price, short volume, short interest, and price activity. Options snapshot is applied to the latest row only unless prior options data has been saved separately."
+  "note": "Historical options volume is estimated from selected option contracts. Open-interest history is still neutral unless added later."
 }

@@ -1,38 +1,30 @@
 {
   "ticker": "OWL",
   "rows_written": 502,
+  "historical_options_days_found": 124,
   "latest_row": {
     "date": "2026-05-08",
     "ticker": "OWL",
-    "close": 10.4499,
-    "volume": 11522196.862312,
+    "close": 10.56,
+    "volume": 20199179.681239,
     "short_interest": 121140130.0,
     "avg_daily_volume": 32828982.0,
     "days_to_cover": 3.69,
     "short_volume_ratio": null,
-    "momentum_20d": 0.26973268529769134,
-    "call_volume": 13852.0,
-    "put_volume": 14848.0,
-    "put_call_volume_ratio": 1.0719029742997401,
-    "call_open_interest": 642301.0,
-    "put_open_interest": 849377.0,
-    "put_call_open_interest_ratio": 1.3223971315629277,
+    "momentum_20d": 0.28311057108140947,
+    "call_volume": 10817.0,
+    "put_volume": 4232.0,
+    "put_call_volume_ratio": 0.3912360173800499,
+    "call_open_interest": "",
+    "put_open_interest": "",
+    "put_call_open_interest_ratio": null,
     "analyst_score": 50.0,
     "short_interest_score": 79.87927565392354,
     "short_volume_score": 50.0,
-    "put_call_volume_score": 0.0,
-    "put_call_open_interest_score": 0.0,
-    "price_activity_score": 99.5850622406639,
-    "optix": 46.57738964909791
+    "put_call_volume_score": 84.48275862068965,
+    "put_call_open_interest_score": 50.0,
+    "price_activity_score": 99.79253112033194,
+    "optix": 69.02576089915752
   },
-  "latest_options_summary": {
-    "contract_count": 770,
-    "call_volume": 13852.0,
-    "put_volume": 14848.0,
-    "call_open_interest": 642301.0,
-    "put_open_interest": 849377.0,
-    "put_call_volume_ratio": 1.0719029742997401,
-    "put_call_open_interest_ratio": 1.3223971315629277
-  },
-  "note": "Historical rows use stock price, short volume, short interest, and price activity. Options snapshot is applied to the latest row only unless prior options data has been saved separately."
+  "note": "Historical options volume is estimated from selected option contracts. Open-interest history is still neutral unless added later."
 }

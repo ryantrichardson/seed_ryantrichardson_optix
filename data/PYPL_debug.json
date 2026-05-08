@@ -1,38 +1,30 @@
 {
   "ticker": "PYPL",
   "rows_written": 502,
+  "historical_options_days_found": 124,
   "latest_row": {
     "date": "2026-05-08",
     "ticker": "PYPL",
-    "close": 45.705,
-    "volume": 6920341.729133,
+    "close": 45.36,
+    "volume": 10574898.091374,
     "short_interest": 45146895.0,
     "avg_daily_volume": 12778361.0,
     "days_to_cover": 3.53,
     "short_volume_ratio": null,
-    "momentum_20d": 0.010278514588859311,
-    "call_volume": 50957.0,
-    "put_volume": 29745.0,
-    "put_call_volume_ratio": 0.583727456482917,
-    "call_open_interest": 1428316.0,
-    "put_open_interest": 613033.0,
-    "put_call_open_interest_ratio": 0.42919984093155855,
+    "momentum_20d": 0.0026525198938991412,
+    "call_volume": 25551.0,
+    "put_volume": 16433.0,
+    "put_call_volume_ratio": 0.643145082384251,
+    "call_open_interest": "",
+    "put_open_interest": "",
+    "put_call_open_interest_ratio": null,
     "analyst_score": 50.0,
     "short_interest_score": 4.225352112676063,
     "short_volume_score": 50.0,
-    "put_call_volume_score": 0.0,
-    "put_call_open_interest_score": 0.0,
-    "price_activity_score": 54.149377593360995,
-    "optix": 26.395788284339506
+    "put_call_volume_score": 66.93548387096774,
+    "put_call_open_interest_score": 50.0,
+    "price_activity_score": 50.829875518672196,
+    "optix": 45.331785250386
   },
-  "latest_options_summary": {
-    "contract_count": 1182,
-    "call_volume": 50957.0,
-    "put_volume": 29745.0,
-    "call_open_interest": 1428316.0,
-    "put_open_interest": 613033.0,
-    "put_call_volume_ratio": 0.583727456482917,
-    "put_call_open_interest_ratio": 0.42919984093155855
-  },
-  "note": "Historical rows use stock price, short volume, short interest, and price activity. Options snapshot is applied to the latest row only unless prior options data has been saved separately."
+  "note": "Historical options volume is estimated from selected option contracts. Open-interest history is still neutral unless added later."
 }
