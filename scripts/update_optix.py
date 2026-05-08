@@ -1,7 +1,7 @@
 import csv
 import json
 import os
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 import requests
@@ -16,6 +16,8 @@ DATA_DIR = ROOT / "data"
 DATA_DIR.mkdir(exist_ok=True)
 
 BASE_URL = "https://api.massive.com"
+
+BACKFILL_DAYS = 730
 
 
 def get_json(path, params=None):
@@ -35,49 +37,108 @@ def read_tickers():
         return [row["ticker"].strip().upper() for row in reader if row.get("ticker")]
 
 
-def latest_stock_close(ticker):
-    payload = get_json(f"/v2/aggs/ticker/{ticker}/prev", {"adjusted": "true"})
-    results = payload.get("results") or []
-    if not results:
+def safe_float(value):
+    if value in (None, ""):
+        return None
+    try:
+        return float(value)
+    except Exception:
         return None
 
-    row = results[0]
-    return {
-        "close": row.get("c"),
-        "volume": row.get("v"),
-    }
+
+def percentile_rank(values, current_value):
+    clean_values = [v for v in values if v is not None]
+
+    if current_value is None or not clean_values:
+        return 50.0
+
+    count = sum(1 for v in clean_values if current_value >= v)
+    return 100.0 * count / len(clean_values)
 
 
-def latest_short_interest(ticker):
+def inverse_percentile_rank(values, current_value):
+    return 100.0 - percentile_rank(values, current_value)
+
+
+def clamp(value):
+    return max(0.0, min(100.0, value))
+
+
+def fetch_stock_history(ticker, start_date, end_date):
     payload = get_json(
-        "/stocks/v1/short-interest",
+        f"/v2/aggs/ticker/{ticker}/range/1/day/{start_date}/{end_date}",
         {
-            "ticker": ticker,
-            "limit": 1,
-            "sort": "settlement_date.desc",
+            "adjusted": "true",
+            "sort": "asc",
+            "limit": 50000,
         },
     )
-    results = payload.get("results") or []
-    if not results:
-        return None
-    return results[0]
+
+    rows = []
+
+    for item in payload.get("results") or []:
+        row_date = datetime.utcfromtimestamp(item["t"] / 1000).date().isoformat()
+
+        rows.append(
+            {
+                "date": row_date,
+                "ticker": ticker,
+                "close": safe_float(item.get("c")),
+                "volume": safe_float(item.get("v")),
+            }
+        )
+
+    return rows
 
 
-
-def latest_short_volume(ticker):
+def fetch_short_volume_history(ticker, start_date, end_date):
     payload = get_json(
         "/stocks/v1/short-volume",
         {
             "ticker": ticker,
-            "limit": 1,
-            "sort": "date.desc",
+            "date.gte": start_date,
+            "date.lte": end_date,
+            "sort": "date.asc",
+            "limit": 1000,
         },
     )
-    results = payload.get("results") or []
-    if not results:
-        return None
-    return results[0]
-    
+
+    rows = {}
+
+    for item in payload.get("results") or []:
+        row_date = item.get("date")
+        if not row_date:
+            continue
+
+        rows[row_date] = item
+
+    return rows
+
+
+def fetch_short_interest_history(ticker, start_date, end_date):
+    payload = get_json(
+        "/stocks/v1/short-interest",
+        {
+            "ticker": ticker,
+            "settlement_date.gte": start_date,
+            "settlement_date.lte": end_date,
+            "sort": "settlement_date.asc",
+            "limit": 1000,
+        },
+    )
+
+    rows = []
+
+    for item in payload.get("results") or []:
+        settlement_date = item.get("settlement_date")
+        if settlement_date:
+            rows.append(item)
+
+    rows.sort(key=lambda row: row.get("settlement_date", ""))
+
+    return rows
+
+
 def latest_options_summary(ticker):
     path = f"/v3/snapshot/options/{ticker}"
     params = {
@@ -102,18 +163,8 @@ def latest_options_summary(ticker):
             day = contract.get("day") or {}
 
             contract_type = details.get("contract_type")
-            volume = day.get("volume") or 0
-            open_interest = contract.get("open_interest") or 0
-
-            try:
-                volume = float(volume)
-            except Exception:
-                volume = 0.0
-
-            try:
-                open_interest = float(open_interest)
-            except Exception:
-                open_interest = 0.0
+            volume = safe_float(day.get("volume")) or 0.0
+            open_interest = safe_float(contract.get("open_interest")) or 0.0
 
             if contract_type == "call":
                 call_volume += volume
@@ -130,16 +181,17 @@ def latest_options_summary(ticker):
         if not next_url:
             break
 
-        # Massive next_url already contains the next page query.
-        # Convert it back into path/params for get_json.
         if "api.massive.com" in next_url:
             path = next_url.replace("https://api.massive.com", "").split("?")[0]
             query = next_url.split("?", 1)[1] if "?" in next_url else ""
             params = {}
+
             for part in query.split("&"):
                 if not part:
                     continue
+
                 key, _, value = part.partition("=")
+
                 if key != "apiKey":
                     params[key] = value
         else:
@@ -160,177 +212,199 @@ def latest_options_summary(ticker):
         "put_call_volume_ratio": put_call_volume_ratio,
         "put_call_open_interest_ratio": put_call_open_interest_ratio,
     }
-    
-def score_from_put_call_ratio(ratio):
-    if ratio is None:
-        return 50.0
-
-    try:
-        ratio = float(ratio)
-    except Exception:
-        return 50.0
-
-    # Lower put/call = more bullish. Higher put/call = more bearish.
-    # Ratio around 1.0 is neutral.
-    score = 100.0 - (ratio * 50.0)
-    return max(0.0, min(100.0, score))
 
 
-def score_from_price_activity(stock):
-    if not stock:
-        return 50.0
+def latest_short_interest_as_of(short_interest_rows, row_date):
+    latest = None
 
-    # Placeholder neutral until we add historical price momentum.
-    return 50.0
-def safe_float(value):
-    if value in (None, ""):
-        return None
-    try:
-        return float(value)
-    except Exception:
-        return None
+    for item in short_interest_rows:
+        settlement_date = item.get("settlement_date")
+        if settlement_date and settlement_date <= row_date:
+            latest = item
+        elif settlement_date and settlement_date > row_date:
+            break
+
+    return latest
 
 
-def percentile_rank(values, current_value):
-    clean_values = [v for v in values if v is not None]
-
-    if current_value is None or not clean_values:
-        return 50.0
-
-    count = sum(1 for v in clean_values if current_value >= v)
-    return 100.0 * count / len(clean_values)
-
-
-def inverse_percentile_rank(values, current_value):
-    return 100.0 - percentile_rank(values, current_value)
-
-
-def calculate_ranked_optix(ticker, raw_components):
-    path = DATA_DIR / f"{ticker}_components.csv"
-
-    if not path.exists():
-        return raw_components["fallback_optix"]
-
-    with path.open("r", newline="") as f:
-        rows = list(csv.DictReader(f))
-
-    if len(rows) < 20:
-        return raw_components["fallback_optix"]
-
-    days_to_cover_values = [safe_float(row.get("days_to_cover")) for row in rows]
-    short_volume_ratio_values = [safe_float(row.get("short_volume_ratio")) for row in rows]
-    put_call_volume_values = [safe_float(row.get("put_call_volume_ratio")) for row in rows]
-    put_call_oi_values = [safe_float(row.get("put_call_open_interest_ratio")) for row in rows]
-
-    current_days_to_cover = raw_components["days_to_cover"]
-    current_short_volume_ratio = raw_components["short_volume_ratio"]
-    current_put_call_volume_ratio = raw_components["put_call_volume_ratio"]
-    current_put_call_oi_ratio = raw_components["put_call_open_interest_ratio"]
-
-    analyst_score = 50.0
-    price_activity_score = raw_components["price_activity_score"]
-
-    short_interest_score = inverse_percentile_rank(days_to_cover_values, current_days_to_cover)
-    short_volume_score = inverse_percentile_rank(short_volume_ratio_values, current_short_volume_ratio)
-    put_call_volume_score = inverse_percentile_rank(put_call_volume_values, current_put_call_volume_ratio)
-    put_call_open_interest_score = inverse_percentile_rank(put_call_oi_values, current_put_call_oi_ratio)
-
-    optix = (
-        analyst_score
-        + short_interest_score
-        + short_volume_score
-        + put_call_open_interest_score
-        + put_call_volume_score
-        + price_activity_score
-    ) / 6.0
-
-    return max(0.0, min(100.0, optix))
-
-def score_from_short_interest(short_interest):
-    if not short_interest:
-        return 50.0
-
-    days_to_cover = short_interest.get("days_to_cover")
-    short_percent = (
-        short_interest.get("short_percent_of_float")
-        or short_interest.get("short_interest_percent_float")
-        or short_interest.get("percent_of_float")
-    )
-
-    score = 50.0
-
-    if days_to_cover is not None:
-        try:
-            days = float(days_to_cover)
-            score -= min(35.0, days * 4.0)
-        except Exception:
-            pass
-
-    if short_percent is not None:
-        try:
-            pct = float(short_percent)
-            score -= min(35.0, pct * 1.5)
-        except Exception:
-            pass
-
-    return max(0.0, min(100.0, score))
-
-
-def score_from_short_volume(short_volume):
+def get_short_volume_ratio(short_volume):
     if not short_volume:
-        return 50.0
+        return None
+
+    direct_ratio = safe_float(short_volume.get("short_volume_ratio"))
+    if direct_ratio is not None:
+        return direct_ratio
 
     short_volume_value = (
-        short_volume.get("short_volume")
-        or short_volume.get("shortVolume")
-        or short_volume.get("short_volume_total")
+        safe_float(short_volume.get("short_volume"))
+        or safe_float(short_volume.get("shortVolume"))
+        or safe_float(short_volume.get("short_volume_total"))
     )
     total_volume_value = (
-        short_volume.get("total_volume")
-        or short_volume.get("totalVolume")
-        or short_volume.get("volume")
+        safe_float(short_volume.get("total_volume"))
+        or safe_float(short_volume.get("totalVolume"))
+        or safe_float(short_volume.get("volume"))
     )
 
-    if not short_volume_value or not total_volume_value:
-        return 50.0
+    if short_volume_value is None or total_volume_value in (None, 0):
+        return None
+
+    return short_volume_value / total_volume_value
+
+
+def build_raw_component_rows(ticker, stock_rows, short_volume_by_date, short_interest_rows):
+    rows = []
+
+    closes = [row["close"] for row in stock_rows]
+
+    for index, stock in enumerate(stock_rows):
+        row_date = stock["date"]
+
+        short_volume = short_volume_by_date.get(row_date)
+        short_interest = latest_short_interest_as_of(short_interest_rows, row_date)
+
+        close = stock.get("close")
+        volume = stock.get("volume")
+
+        days_to_cover = safe_float(short_interest.get("days_to_cover")) if short_interest else None
+        short_interest_value = safe_float(short_interest.get("short_interest")) if short_interest else None
+        avg_daily_volume = safe_float(short_interest.get("avg_daily_volume")) if short_interest else None
+        short_volume_ratio = get_short_volume_ratio(short_volume)
+
+        momentum_20d = None
+        if index >= 20 and close is not None and closes[index - 20] not in (None, 0):
+            momentum_20d = (close / closes[index - 20]) - 1.0
+
+        rows.append(
+            {
+                "date": row_date,
+                "ticker": ticker,
+                "close": close,
+                "volume": volume,
+                "short_interest": short_interest_value,
+                "avg_daily_volume": avg_daily_volume,
+                "days_to_cover": days_to_cover,
+                "short_volume_ratio": short_volume_ratio,
+                "momentum_20d": momentum_20d,
+                "call_volume": "",
+                "put_volume": "",
+                "put_call_volume_ratio": None,
+                "call_open_interest": "",
+                "put_open_interest": "",
+                "put_call_open_interest_ratio": None,
+            }
+        )
+
+    return rows
+
+
+def score_rows(raw_rows):
+    scored_rows = []
+
+    for index, row in enumerate(raw_rows):
+        history = raw_rows[: index + 1]
+
+        days_to_cover_values = [item.get("days_to_cover") for item in history]
+        short_volume_ratio_values = [item.get("short_volume_ratio") for item in history]
+        momentum_values = [item.get("momentum_20d") for item in history]
+
+        analyst_score = 50.0
+
+        short_interest_score = inverse_percentile_rank(
+            days_to_cover_values,
+            row.get("days_to_cover"),
+        )
+
+        short_volume_score = inverse_percentile_rank(
+            short_volume_ratio_values,
+            row.get("short_volume_ratio"),
+        )
+
+        put_call_volume_score = 50.0
+        put_call_open_interest_score = 50.0
+
+        price_activity_score = percentile_rank(
+            momentum_values,
+            row.get("momentum_20d"),
+        )
+
+        if index < 20:
+            price_activity_score = 50.0
+
+        optix = (
+            analyst_score
+            + short_interest_score
+            + short_volume_score
+            + put_call_open_interest_score
+            + put_call_volume_score
+            + price_activity_score
+        ) / 6.0
+
+        scored = dict(row)
+        scored["analyst_score"] = analyst_score
+        scored["short_interest_score"] = short_interest_score
+        scored["short_volume_score"] = short_volume_score
+        scored["put_call_volume_score"] = put_call_volume_score
+        scored["put_call_open_interest_score"] = put_call_open_interest_score
+        scored["price_activity_score"] = price_activity_score
+        scored["optix"] = clamp(optix)
+
+        scored_rows.append(scored)
+
+    return scored_rows
+
+
+def apply_latest_options_snapshot(ticker, scored_rows):
+    if not scored_rows:
+        return None
 
     try:
-        ratio = float(short_volume_value) / float(total_volume_value)
-    except Exception:
-        return 50.0
+        options_summary = latest_options_summary(ticker)
+    except Exception as exc:
+        print(f"Could not fetch options snapshot for {ticker}: {exc}")
+        return None
 
-    return max(0.0, min(100.0, 100.0 - ratio * 100.0))
+    latest_row = scored_rows[-1]
 
-def write_component_history(ticker, stock, short_interest, short_volume, options_summary, optix_value):
+    latest_row["call_volume"] = options_summary.get("call_volume")
+    latest_row["put_volume"] = options_summary.get("put_volume")
+    latest_row["put_call_volume_ratio"] = options_summary.get("put_call_volume_ratio")
+    latest_row["call_open_interest"] = options_summary.get("call_open_interest")
+    latest_row["put_open_interest"] = options_summary.get("put_open_interest")
+    latest_row["put_call_open_interest_ratio"] = options_summary.get("put_call_open_interest_ratio")
+
+    history = scored_rows
+
+    put_call_volume_values = [safe_float(item.get("put_call_volume_ratio")) for item in history]
+    put_call_oi_values = [safe_float(item.get("put_call_open_interest_ratio")) for item in history]
+
+    latest_row["put_call_volume_score"] = inverse_percentile_rank(
+        put_call_volume_values,
+        safe_float(latest_row.get("put_call_volume_ratio")),
+    )
+
+    latest_row["put_call_open_interest_score"] = inverse_percentile_rank(
+        put_call_oi_values,
+        safe_float(latest_row.get("put_call_open_interest_ratio")),
+    )
+
+    latest_row["optix"] = clamp(
+        (
+            latest_row["analyst_score"]
+            + latest_row["short_interest_score"]
+            + latest_row["short_volume_score"]
+            + latest_row["put_call_open_interest_score"]
+            + latest_row["put_call_volume_score"]
+            + latest_row["price_activity_score"]
+        )
+        / 6.0
+    )
+
+    return options_summary
+
+
+def write_component_history(ticker, rows):
     path = DATA_DIR / f"{ticker}_components.csv"
-    today = date.today().isoformat()
-
-    row = {
-        "date": today,
-        "ticker": ticker,
-        "close": stock.get("close") if stock else "",
-        "volume": stock.get("volume") if stock else "",
-        "short_interest": short_interest.get("short_interest") if short_interest else "",
-        "avg_daily_volume": short_interest.get("avg_daily_volume") if short_interest else "",
-        "days_to_cover": short_interest.get("days_to_cover") if short_interest else "",
-        "short_volume_ratio": short_volume.get("short_volume_ratio") if short_volume else "",
-        "call_volume": options_summary.get("call_volume"),
-        "put_volume": options_summary.get("put_volume"),
-        "put_call_volume_ratio": options_summary.get("put_call_volume_ratio"),
-        "call_open_interest": options_summary.get("call_open_interest"),
-        "put_open_interest": options_summary.get("put_open_interest"),
-        "put_call_open_interest_ratio": options_summary.get("put_call_open_interest_ratio"),
-        "optix": optix_value,
-    }
-
-    rows = []
-    if path.exists():
-        with path.open("r", newline="") as f:
-            rows = list(csv.DictReader(f))
-
-    rows = [existing for existing in rows if existing["date"] != today]
-    rows.append(row)
-    rows.sort(key=lambda r: r["date"])
 
     fieldnames = [
         "date",
@@ -341,84 +415,133 @@ def write_component_history(ticker, stock, short_interest, short_volume, options
         "avg_daily_volume",
         "days_to_cover",
         "short_volume_ratio",
+        "momentum_20d",
         "call_volume",
         "put_volume",
         "put_call_volume_ratio",
         "call_open_interest",
         "put_open_interest",
         "put_call_open_interest_ratio",
+        "analyst_score",
+        "short_interest_score",
+        "short_volume_score",
+        "put_call_volume_score",
+        "put_call_open_interest_score",
+        "price_activity_score",
         "optix",
     ]
 
     with path.open("w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(rows)
+
+        for row in rows:
+            writer.writerow(row)
 
     print(f"Wrote component history {path}")
-    
-def write_seed_file(ticker, optix_value):
+
+
+def write_seed_file(ticker, rows):
     path = DATA_DIR / f"{ticker}_OPTIX.csv"
-    today = date.today().isoformat()
-
-    rows = []
-    if path.exists():
-        with path.open("r", newline="") as f:
-            rows = list(csv.DictReader(f))
-
-    rows = [row for row in rows if row["time"] != today]
-
-    rows.append(
-        {
-            "time": today,
-            "open": f"{optix_value:.4f}",
-            "high": f"{optix_value:.4f}",
-            "low": f"{optix_value:.4f}",
-            "close": f"{optix_value:.4f}",
-            "volume": "0",
-        }
-    )
-
-    rows.sort(key=lambda r: r["time"])
 
     with path.open("w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=["time", "open", "high", "low", "close", "volume"])
         writer.writeheader()
-        writer.writerows(rows)
 
-    print(f"Wrote {path}: {optix_value:.4f}")    
-def write_tradestation_file(ticker, optix_value):
+        for row in rows:
+            value = f"{row['optix']:.4f}"
+
+            writer.writerow(
+                {
+                    "time": row["date"],
+                    "open": value,
+                    "high": value,
+                    "low": value,
+                    "close": value,
+                    "volume": "0",
+                }
+            )
+
+    print(f"Wrote TradingView seed file {path}")
+
+
+def write_tradestation_file(ticker, rows):
     path = DATA_DIR / f"{ticker}_TS.txt"
-    today = date.today().strftime("%m/%d/%Y")
-
-    rows = []
-    if path.exists():
-        with path.open("r", newline="") as f:
-            rows = list(csv.DictReader(f))
-
-    rows = [row for row in rows if row["Date"] != today]
-
-    value = f"{optix_value:.4f}"
-
-    rows.append(
-        {
-            "Date": today,
-            "Open": value,
-            "High": value,
-            "Low": value,
-            "Close": value,
-            "Volume": "0",
-        }
-    )
-
-    rows.sort(key=lambda r: r["Date"])
 
     with path.open("w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=["Date", "Open", "High", "Low", "Close", "Volume"])
         writer.writeheader()
-        writer.writerows(rows)
 
-    print(f"Wrote TradeStation file {path}: {value}")
+        for row in rows:
+            row_date = datetime.strptime(row["date"], "%Y-%m-%d").strftime("%m/%d/%Y")
+            value = f"{row['optix']:.4f}"
+
+            writer.writerow(
+                {
+                    "Date": row_date,
+                    "Open": value,
+                    "High": value,
+                    "Low": value,
+                    "Close": value,
+                    "Volume": "0",
+                }
+            )
+
+    print(f"Wrote TradeStation file {path}")
+
+
+def write_debug_file(ticker, scored_rows, options_summary):
+    path = DATA_DIR / f"{ticker}_debug.json"
+
+    latest_row = scored_rows[-1] if scored_rows else {}
+
+    with path.open("w") as f:
+        json.dump(
+            {
+                "ticker": ticker,
+                "rows_written": len(scored_rows),
+                "latest_row": latest_row,
+                "latest_options_summary": options_summary,
+                "note": "Historical rows use stock price, short volume, short interest, and price activity. Options snapshot is applied to the latest row only unless prior options data has been saved separately.",
+            },
+            f,
+            indent=2,
+            default=str,
+        )
+
+    print(f"Wrote debug file {path}")
+
+
+def process_ticker(ticker):
+    today = date.today()
+    start_date = (today - timedelta(days=BACKFILL_DAYS)).isoformat()
+    end_date = today.isoformat()
+
+    print(f"\nProcessing {ticker}: {start_date} to {end_date}")
+
+    stock_rows = fetch_stock_history(ticker, start_date, end_date)
+    short_volume_by_date = fetch_short_volume_history(ticker, start_date, end_date)
+    short_interest_rows = fetch_short_interest_history(ticker, start_date, end_date)
+
+    if not stock_rows:
+        print(f"No stock rows found for {ticker}; skipping")
+        return
+
+    raw_rows = build_raw_component_rows(
+        ticker,
+        stock_rows,
+        short_volume_by_date,
+        short_interest_rows,
+    )
+
+    scored_rows = score_rows(raw_rows)
+
+    options_summary = apply_latest_options_snapshot(ticker, scored_rows)
+
+    write_component_history(ticker, scored_rows)
+    write_seed_file(ticker, scored_rows)
+    write_tradestation_file(ticker, scored_rows)
+    write_debug_file(ticker, scored_rows, options_summary)
 
 
 def main():
@@ -426,72 +549,10 @@ def main():
     print(f"Tickers: {tickers}")
 
     for ticker in tickers:
-        print(f"\nProcessing {ticker}")
-
-        stock = latest_stock_close(ticker)
-        short_interest = latest_short_interest(ticker)
-        short_volume = latest_short_volume(ticker)
-        options_summary = latest_options_summary(ticker)
-
-
-        short_interest_score = score_from_short_interest(short_interest)
-        short_volume_score = score_from_short_volume(short_volume)
-        put_call_volume_score = score_from_put_call_ratio(options_summary.get("put_call_volume_ratio"))
-        put_call_open_interest_score = score_from_put_call_ratio(options_summary.get("put_call_open_interest_ratio"))
-        price_activity_score = score_from_price_activity(stock)
-
-        # Six-part Optix-style score:
-        # 1 analyst proxy: neutral for now
-        # 2 short interest / average volume
-        # 3 short volume / short pressure
-        # 4 put/call open interest
-        # 5 put/call volume
-        # 6 price activity
-        analyst_score = 50.0
-
-        optix = (
-            analyst_score
-            + short_interest_score
-            + short_volume_score
-            + put_call_open_interest_score
-            + put_call_volume_score
-            + price_activity_score
-        ) / 6.0
-        raw_components = {
-            "days_to_cover": safe_float(short_interest.get("days_to_cover")) if short_interest else None,
-            "short_volume_ratio": safe_float(short_volume.get("short_volume_ratio")) if short_volume else None,
-            "put_call_volume_ratio": safe_float(options_summary.get("put_call_volume_ratio")),
-            "put_call_open_interest_ratio": safe_float(options_summary.get("put_call_open_interest_ratio")),
-            "price_activity_score": price_activity_score,
-            "fallback_optix": optix,
-        }
-
-        optix = calculate_ranked_optix(ticker, raw_components)
-        debug_path = DATA_DIR / f"{ticker}_debug.json"
-        with debug_path.open("w") as f:
-            json.dump(
-                {
-                    "ticker": ticker,
-                    "stock": stock,
-                    "short_interest": short_interest,
-                    "short_volume": short_volume,
-                    "options_summary": options_summary,
-                    "short_interest_score": short_interest_score,
-                    "short_volume_score": short_volume_score,
-                    "put_call_volume_score": put_call_volume_score,
-                    "put_call_open_interest_score": put_call_open_interest_score,
-                    "price_activity_score": price_activity_score,
-                    "optix_first_pass": optix,
-                },
-                f,
-                indent=2,
-                default=str,
-            )
-
-
-        write_component_history(ticker, stock, short_interest, short_volume, options_summary, optix)
-        write_seed_file(ticker, optix)
-        write_tradestation_file(ticker, optix)
+        try:
+            process_ticker(ticker)
+        except Exception as exc:
+            print(f"ERROR processing {ticker}: {exc}")
 
     print("\nDone.")
 
