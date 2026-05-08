@@ -1,8 +1,8 @@
 {
   "ticker": "AMD",
   "stock": {
-    "close": 421.39,
-    "volume": 87718171.0
+    "close": 408.46,
+    "volume": 44885481.0
   },
   "short_interest": {
     "settlement_date": "2026-04-15",
@@ -13,18 +13,18 @@
   },
   "short_volume": {
     "ticker": "AMD",
-    "date": "2026-05-06",
-    "total_volume": 40325151.541765,
-    "short_volume": 20083781.579082,
-    "exempt_volume": 57466.0,
-    "non_exempt_volume": 20026315.579082,
-    "short_volume_ratio": 49.8,
-    "nyse_short_volume": 571996,
+    "date": "2026-05-07",
+    "total_volume": 22872735.516112,
+    "short_volume": 13754199.098039,
+    "exempt_volume": 30208.0,
+    "non_exempt_volume": 13723991.098039,
+    "short_volume_ratio": 60.13,
+    "nyse_short_volume": 490218,
     "nyse_short_volume_exempt": 0,
-    "nasdaq_carteret_short_volume": 19045179,
-    "nasdaq_carteret_short_volume_exempt": 57466,
-    "nasdaq_chicago_short_volume": 466606,
-    "nasdaq_chicago_short_volume_exempt": 0,
+    "nasdaq_carteret_short_volume": 12935913,
+    "nasdaq_carteret_short_volume_exempt": 30204,
+    "nasdaq_chicago_short_volume": 328067,
+    "nasdaq_chicago_short_volume_exempt": 4,
     "adf_short_volume": 0,
     "adf_short_volume_exempt": 0
   },
@@ -38,9 +38,9 @@
     "put_call_open_interest_ratio": 1.0699333104511226
   },
   "short_interest_score": 45.32,
-  "short_volume_score": 50.19539713748847,
+  "short_volume_score": 39.866400814409474,
   "put_call_volume_score": 64.9787671147077,
   "put_call_open_interest_score": 46.50333447744387,
   "price_activity_score": 50.0,
-  "optix_first_pass": 51.16624978827334
+  "optix_first_pass": 49.44475040109351
 }

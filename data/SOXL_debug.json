@@ -1,8 +1,8 @@
 {
   "ticker": "SOXL",
   "stock": {
-    "close": 165.85,
-    "volume": 65578167.0
+    "close": 152.1,
+    "volume": 72375207.0
   },
   "short_interest": {
     "settlement_date": "2026-04-15",
@@ -13,18 +13,18 @@
   },
   "short_volume": {
     "ticker": "SOXL",
-    "date": "2026-05-06",
-    "total_volume": 20356011.613118,
-    "short_volume": 11613470.338529,
-    "exempt_volume": 56218.0,
-    "non_exempt_volume": 11557252.338529,
-    "short_volume_ratio": 57.05,
-    "nyse_short_volume": 166001,
+    "date": "2026-05-07",
+    "total_volume": 27156408.112303,
+    "short_volume": 16296650.860593,
+    "exempt_volume": 569654.91829,
+    "non_exempt_volume": 15726995.942303,
+    "short_volume_ratio": 60.01,
+    "nyse_short_volume": 229755,
     "nyse_short_volume_exempt": 0,
-    "nasdaq_carteret_short_volume": 11183809,
-    "nasdaq_carteret_short_volume_exempt": 56192,
-    "nasdaq_chicago_short_volume": 263659,
-    "nasdaq_chicago_short_volume_exempt": 26,
+    "nasdaq_carteret_short_volume": 15671631,
+    "nasdaq_carteret_short_volume_exempt": 566796,
+    "nasdaq_chicago_short_volume": 395263,
+    "nasdaq_chicago_short_volume_exempt": 2858,
     "adf_short_volume": 0,
     "adf_short_volume_exempt": 0
   },
@@ -38,9 +38,9 @@
     "put_call_open_interest_ratio": 1.1277828160751622
   },
   "short_interest_score": 46.0,
-  "short_volume_score": 42.94820341404725,
+  "short_volume_score": 39.989667288841744,
   "put_call_volume_score": 18.623201820775563,
   "put_call_open_interest_score": 43.61085919624189,
   "price_activity_score": 50.0,
-  "optix_first_pass": 41.86371073851078
+  "optix_first_pass": 41.37062138430987
 }

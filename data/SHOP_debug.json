@@ -1,8 +1,8 @@
 {
   "ticker": "SHOP",
   "stock": {
-    "close": 105.44,
-    "volume": 24641671.0
+    "close": 111.74,
+    "volume": 22724846.0
   },
   "short_interest": {
     "settlement_date": "2026-04-15",
@@ -13,18 +13,18 @@
   },
   "short_volume": {
     "ticker": "SHOP",
-    "date": "2026-05-06",
-    "total_volume": 10237131.745727,
-    "short_volume": 2582140.134184,
-    "exempt_volume": 191790.30048,
-    "non_exempt_volume": 2390349.833704,
-    "short_volume_ratio": 25.22,
-    "nyse_short_volume": 125799,
-    "nyse_short_volume_exempt": 300,
-    "nasdaq_carteret_short_volume": 2402114,
-    "nasdaq_carteret_short_volume_exempt": 189014,
-    "nasdaq_chicago_short_volume": 54226,
-    "nasdaq_chicago_short_volume_exempt": 2476,
+    "date": "2026-05-07",
+    "total_volume": 10223160.029253,
+    "short_volume": 1939281.88519,
+    "exempt_volume": 16902.0,
+    "non_exempt_volume": 1922379.88519,
+    "short_volume_ratio": 18.97,
+    "nyse_short_volume": 89641,
+    "nyse_short_volume_exempt": 0,
+    "nasdaq_carteret_short_volume": 1828945,
+    "nasdaq_carteret_short_volume_exempt": 16802,
+    "nasdaq_chicago_short_volume": 20695,
+    "nasdaq_chicago_short_volume_exempt": 100,
     "adf_short_volume": 0,
     "adf_short_volume_exempt": 0
   },
@@ -38,9 +38,9 @@
     "put_call_open_interest_ratio": 0.5411601590504976
   },
   "short_interest_score": 39.04,
-  "short_volume_score": 74.77672263755139,
+  "short_volume_score": 81.03050446592978,
   "put_call_volume_score": 58.84095085428315,
   "put_call_open_interest_score": 72.94199204747511,
   "price_activity_score": 50.0,
-  "optix_first_pass": 57.5999442565516
+  "optix_first_pass": 58.642241227948006
 }

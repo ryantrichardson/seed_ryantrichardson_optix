@@ -1,8 +1,8 @@
 {
   "ticker": "OWL",
   "stock": {
-    "close": 10.54,
-    "volume": 49885863.0
+    "close": 10.35,
+    "volume": 27402315.0
   },
   "short_interest": {
     "settlement_date": "2026-04-15",
@@ -13,17 +13,17 @@
   },
   "short_volume": {
     "ticker": "OWL",
-    "date": "2026-05-06",
-    "total_volume": 19944343.892296,
-    "short_volume": 14193977.939597,
-    "exempt_volume": 11047.0,
-    "non_exempt_volume": 14182930.939597,
-    "short_volume_ratio": 71.17,
-    "nyse_short_volume": 553011,
-    "nyse_short_volume_exempt": 1280,
-    "nasdaq_carteret_short_volume": 13563728,
-    "nasdaq_carteret_short_volume_exempt": 9767,
-    "nasdaq_chicago_short_volume": 77237,
+    "date": "2026-05-07",
+    "total_volume": 12578952.879209,
+    "short_volume": 7923689.489851,
+    "exempt_volume": 8480.0,
+    "non_exempt_volume": 7915209.489851,
+    "short_volume_ratio": 62.99,
+    "nyse_short_volume": 363434,
+    "nyse_short_volume_exempt": 552,
+    "nasdaq_carteret_short_volume": 7555440,
+    "nasdaq_carteret_short_volume_exempt": 7928,
+    "nasdaq_chicago_short_volume": 4814,
     "nasdaq_chicago_short_volume_exempt": 0,
     "adf_short_volume": 0,
     "adf_short_volume_exempt": 0
@@ -38,9 +38,9 @@
     "put_call_open_interest_ratio": 1.3157464021052467
   },
   "short_interest_score": 35.24,
-  "short_volume_score": 28.832063785864733,
+  "short_volume_score": 37.008353827705385,
   "put_call_volume_score": 17.089086438433895,
   "put_call_open_interest_score": 34.21267989473766,
   "price_activity_score": 50.0,
-  "optix_first_pass": 35.895638353172714
+  "optix_first_pass": 37.25835336014616
 }

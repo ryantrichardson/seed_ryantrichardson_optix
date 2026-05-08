@@ -1,8 +1,8 @@
 {
   "ticker": "PYPL",
   "stock": {
-    "close": 46.27,
-    "volume": 19818479.0
+    "close": 46.22,
+    "volume": 14081555.0
   },
   "short_interest": {
     "settlement_date": "2026-04-15",
@@ -13,18 +13,18 @@
   },
   "short_volume": {
     "ticker": "PYPL",
-    "date": "2026-05-06",
-    "total_volume": 5681982.400647,
-    "short_volume": 1708303.678912,
-    "exempt_volume": 67608.67379,
-    "non_exempt_volume": 1640695.005122,
-    "short_volume_ratio": 30.07,
-    "nyse_short_volume": 153089,
+    "date": "2026-05-07",
+    "total_volume": 4418625.180836,
+    "short_volume": 1203714.854228,
+    "exempt_volume": 16932.0,
+    "non_exempt_volume": 1186782.854228,
+    "short_volume_ratio": 27.24,
+    "nyse_short_volume": 48246,
     "nyse_short_volume_exempt": 0,
-    "nasdaq_carteret_short_volume": 1537267,
-    "nasdaq_carteret_short_volume_exempt": 67493,
-    "nasdaq_chicago_short_volume": 17947,
-    "nasdaq_chicago_short_volume_exempt": 115,
+    "nasdaq_carteret_short_volume": 1141830,
+    "nasdaq_carteret_short_volume_exempt": 16932,
+    "nasdaq_chicago_short_volume": 13638,
+    "nasdaq_chicago_short_volume_exempt": 0,
     "adf_short_volume": 0,
     "adf_short_volume_exempt": 0
   },
@@ -38,9 +38,9 @@
     "put_call_open_interest_ratio": 0.43436646651785554
   },
   "short_interest_score": 35.88,
-  "short_volume_score": 69.9347242131993,
+  "short_volume_score": 72.75815881716724,
   "put_call_volume_score": 67.45482778091474,
   "put_call_open_interest_score": 78.28167667410722,
   "price_activity_score": 50.0,
-  "optix_first_pass": 58.59187144470354
+  "optix_first_pass": 59.0624438786982
 }

@@ -1,8 +1,8 @@
 {
   "ticker": "SLV",
   "stock": {
-    "close": 70.13,
-    "volume": 24519548.0
+    "close": 71.6,
+    "volume": 33453093.0
   },
   "short_interest": {
     "settlement_date": "2026-04-15",
@@ -13,17 +13,17 @@
   },
   "short_volume": {
     "ticker": "SLV",
-    "date": "2026-05-06",
-    "total_volume": 7416390.486009,
-    "short_volume": 3441977.517317,
-    "exempt_volume": 42641.0,
-    "non_exempt_volume": 3399336.517317,
-    "short_volume_ratio": 46.41,
-    "nyse_short_volume": 97930,
+    "date": "2026-05-07",
+    "total_volume": 10407689.922935,
+    "short_volume": 5383182.674707,
+    "exempt_volume": 53492.0,
+    "non_exempt_volume": 5329690.674707,
+    "short_volume_ratio": 51.72,
+    "nyse_short_volume": 212115,
     "nyse_short_volume_exempt": 0,
-    "nasdaq_carteret_short_volume": 3276891,
-    "nasdaq_carteret_short_volume_exempt": 42641,
-    "nasdaq_chicago_short_volume": 67155,
+    "nasdaq_carteret_short_volume": 5035533,
+    "nasdaq_carteret_short_volume_exempt": 53492,
+    "nasdaq_chicago_short_volume": 135533,
     "nasdaq_chicago_short_volume_exempt": 0,
     "adf_short_volume": 0,
     "adf_short_volume_exempt": 0
@@ -38,9 +38,9 @@
     "put_call_open_interest_ratio": 0.5436894223919883
   },
   "short_interest_score": 45.64,
-  "short_volume_score": 53.589586149619805,
+  "short_volume_score": 48.27687301824489,
   "put_call_volume_score": 76.0215664564579,
   "put_call_open_interest_score": 72.81552888040059,
   "price_activity_score": 50.0,
-  "optix_first_pass": 58.01111358107972
+  "optix_first_pass": 57.12566139251723
 }
