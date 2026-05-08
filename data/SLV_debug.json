@@ -1,46 +1,38 @@
 {
   "ticker": "SLV",
-  "stock": {
-    "close": 71.6,
-    "volume": 33453093.0
-  },
-  "short_interest": {
-    "settlement_date": "2026-04-15",
+  "rows_written": 502,
+  "latest_row": {
+    "date": "2026-05-08",
     "ticker": "SLV",
-    "short_interest": 31199072,
-    "avg_daily_volume": 28559064,
-    "days_to_cover": 1.09
+    "close": 72.75,
+    "volume": 14607333.802126,
+    "short_interest": 31199072.0,
+    "avg_daily_volume": 28559064.0,
+    "days_to_cover": 1.09,
+    "short_volume_ratio": null,
+    "momentum_20d": 0.05312680949623627,
+    "call_volume": 319706.0,
+    "put_volume": 159461.0,
+    "put_call_volume_ratio": 0.4987738734962747,
+    "call_open_interest": 5342921.0,
+    "put_open_interest": 2898154.0,
+    "put_call_open_interest_ratio": 0.5424287576028168,
+    "analyst_score": 50.0,
+    "short_interest_score": 60.76458752515091,
+    "short_volume_score": 50.0,
+    "put_call_volume_score": 0.0,
+    "put_call_open_interest_score": 0.0,
+    "price_activity_score": 59.95850622406639,
+    "optix": 36.78718229153622
   },
-  "short_volume": {
-    "ticker": "SLV",
-    "date": "2026-05-07",
-    "total_volume": 10407689.922935,
-    "short_volume": 5383182.674707,
-    "exempt_volume": 53492.0,
-    "non_exempt_volume": 5329690.674707,
-    "short_volume_ratio": 51.72,
-    "nyse_short_volume": 212115,
-    "nyse_short_volume_exempt": 0,
-    "nasdaq_carteret_short_volume": 5035533,
-    "nasdaq_carteret_short_volume_exempt": 53492,
-    "nasdaq_chicago_short_volume": 135533,
-    "nasdaq_chicago_short_volume_exempt": 0,
-    "adf_short_volume": 0,
-    "adf_short_volume_exempt": 0
+  "latest_options_summary": {
+    "contract_count": 5558,
+    "call_volume": 319706.0,
+    "put_volume": 159461.0,
+    "call_open_interest": 5342921.0,
+    "put_open_interest": 2898154.0,
+    "put_call_volume_ratio": 0.4987738734962747,
+    "put_call_open_interest_ratio": 0.5424287576028168
   },
-  "options_summary": {
-    "contract_count": 5472,
-    "call_volume": 519325.0,
-    "put_volume": 249052.0,
-    "call_open_interest": 5234917.0,
-    "put_open_interest": 2846169.0,
-    "put_call_volume_ratio": 0.479568670870842,
-    "put_call_open_interest_ratio": 0.5436894223919883
-  },
-  "short_interest_score": 45.64,
-  "short_volume_score": 48.27687301824489,
-  "put_call_volume_score": 76.0215664564579,
-  "put_call_open_interest_score": 72.81552888040059,
-  "price_activity_score": 50.0,
-  "optix_first_pass": 57.12566139251723
+  "note": "Historical rows use stock price, short volume, short interest, and price activity. Options snapshot is applied to the latest row only unless prior options data has been saved separately."
 }

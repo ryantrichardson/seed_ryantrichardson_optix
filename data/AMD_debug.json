@@ -1,46 +1,38 @@
 {
   "ticker": "AMD",
-  "stock": {
-    "close": 408.46,
-    "volume": 44885481.0
-  },
-  "short_interest": {
-    "settlement_date": "2026-04-15",
+  "rows_written": 502,
+  "latest_row": {
+    "date": "2026-05-08",
     "ticker": "AMD",
-    "short_interest": 35648460,
-    "avg_daily_volume": 30574745,
-    "days_to_cover": 1.17
+    "close": 445.085,
+    "volume": 36643538.815869,
+    "short_interest": 35648460.0,
+    "avg_daily_volume": 30574745.0,
+    "days_to_cover": 1.17,
+    "short_volume_ratio": null,
+    "momentum_20d": 0.8163769180541951,
+    "call_volume": 645309.0,
+    "put_volume": 409360.0,
+    "put_call_volume_ratio": 0.6343627626454923,
+    "call_open_interest": 1740830.0,
+    "put_open_interest": 1852504.0,
+    "put_call_open_interest_ratio": 1.064149859549755,
+    "analyst_score": 50.0,
+    "short_interest_score": 34.00402414486922,
+    "short_volume_score": 50.0,
+    "put_call_volume_score": 0.0,
+    "put_call_open_interest_score": 0.0,
+    "price_activity_score": 99.79253112033194,
+    "optix": 38.966092544200194
   },
-  "short_volume": {
-    "ticker": "AMD",
-    "date": "2026-05-07",
-    "total_volume": 22872735.516112,
-    "short_volume": 13754199.098039,
-    "exempt_volume": 30208.0,
-    "non_exempt_volume": 13723991.098039,
-    "short_volume_ratio": 60.13,
-    "nyse_short_volume": 490218,
-    "nyse_short_volume_exempt": 0,
-    "nasdaq_carteret_short_volume": 12935913,
-    "nasdaq_carteret_short_volume_exempt": 30204,
-    "nasdaq_chicago_short_volume": 328067,
-    "nasdaq_chicago_short_volume_exempt": 4,
-    "adf_short_volume": 0,
-    "adf_short_volume_exempt": 0
+  "latest_options_summary": {
+    "contract_count": 5276,
+    "call_volume": 645309.0,
+    "put_volume": 409360.0,
+    "call_open_interest": 1740830.0,
+    "put_open_interest": 1852504.0,
+    "put_call_volume_ratio": 0.6343627626454923,
+    "put_call_open_interest_ratio": 1.064149859549755
   },
-  "options_summary": {
-    "contract_count": 5024,
-    "call_volume": 399145.0,
-    "put_volume": 279571.0,
-    "call_open_interest": 1681073.0,
-    "put_open_interest": 1798636.0,
-    "put_call_volume_ratio": 0.7004246577058463,
-    "put_call_open_interest_ratio": 1.0699333104511226
-  },
-  "short_interest_score": 45.32,
-  "short_volume_score": 39.866400814409474,
-  "put_call_volume_score": 64.9787671147077,
-  "put_call_open_interest_score": 46.50333447744387,
-  "price_activity_score": 50.0,
-  "optix_first_pass": 49.44475040109351
+  "note": "Historical rows use stock price, short volume, short interest, and price activity. Options snapshot is applied to the latest row only unless prior options data has been saved separately."
 }
