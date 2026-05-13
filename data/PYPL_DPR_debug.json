@@ -1,10 +1,10 @@
 {
   "ticker": "PYPL",
-  "rows_written": 123,
+  "rows_written": 122,
   "latest_row": {
-    "date": "2026-05-11",
+    "date": "2026-05-12",
     "ticker": "PYPL",
-    "close": 45.07,
+    "close": 45.44,
     "lit_volume": "",
     "dark_volume": "",
     "total_volume": "",

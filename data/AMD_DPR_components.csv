@@ -1,6 +1,4 @@
 date,ticker,close,lit_volume,dark_volume,total_volume,dark_pool_ratio,dark_pool_ratio_pct,dpr_sma20,dpr_zscore60,dark_blocks
-2025-11-12,AMD,258.89,,,,,,,,
-2025-11-13,AMD,247.96,,,,,,,,
 2025-11-14,AMD,246.81,,,,,,,,
 2025-11-17,AMD,240.52,,,,,,,,
 2025-11-18,AMD,230.29,,,,,,,,
@@ -122,3 +120,4 @@ date,ticker,close,lit_volume,dark_volume,total_volume,dark_pool_ratio,dark_pool_
 2026-05-07,AMD,408.46,,,,,,,,
 2026-05-08,AMD,455.19,,,,,,,,
 2026-05-11,AMD,458.79,,,,,,,,
+2026-05-12,AMD,448.29,,,,,,,,

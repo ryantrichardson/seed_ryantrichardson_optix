@@ -1,6 +1,4 @@
 date,ticker,close,lit_volume,dark_volume,total_volume,dark_pool_ratio,dark_pool_ratio_pct,dpr_sma20,dpr_zscore60,dark_blocks
-2025-11-12,PYPL,67.2,,,,,,,,
-2025-11-13,PYPL,65.33,,,,,,,,
 2025-11-14,PYPL,62.81,,,,,,,,
 2025-11-17,PYPL,61.89,,,,,,,,
 2025-11-18,PYPL,60.7,,,,,,,,
@@ -122,3 +120,4 @@ date,ticker,close,lit_volume,dark_volume,total_volume,dark_pool_ratio,dark_pool_
 2026-05-07,PYPL,46.22,,,,,,,,
 2026-05-08,PYPL,45.37,,,,,,,,
 2026-05-11,PYPL,45.07,,,,,,,,
+2026-05-12,PYPL,45.44,,,,,,,,

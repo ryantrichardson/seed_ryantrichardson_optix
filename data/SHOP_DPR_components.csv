@@ -1,6 +1,4 @@
 date,ticker,close,lit_volume,dark_volume,total_volume,dark_pool_ratio,dark_pool_ratio_pct,dpr_sma20,dpr_zscore60,dark_blocks
-2025-11-12,SHOP,156.59,,,,,,,,
-2025-11-13,SHOP,146.34,,,,,,,,
 2025-11-14,SHOP,146.04,,,,,,,,
 2025-11-17,SHOP,139.93,,,,,,,,
 2025-11-18,SHOP,140.45,,,,,,,,
@@ -122,3 +120,4 @@ date,ticker,close,lit_volume,dark_volume,total_volume,dark_pool_ratio,dark_pool_
 2026-05-07,SHOP,111.74,,,,,,,,
 2026-05-08,SHOP,110.41,,,,,,,,
 2026-05-11,SHOP,102.54,,,,,,,,
+2026-05-12,SHOP,99.84,,,,,,,,

@@ -1,10 +1,10 @@
 {
   "ticker": "SOXL",
-  "rows_written": 123,
+  "rows_written": 122,
   "latest_row": {
-    "date": "2026-05-11",
+    "date": "2026-05-12",
     "ticker": "SOXL",
-    "close": 190.42,
+    "close": 172.52,
     "lit_volume": "",
     "dark_volume": "",
     "total_volume": "",
