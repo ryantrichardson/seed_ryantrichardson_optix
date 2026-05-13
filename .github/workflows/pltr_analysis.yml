@@ -6,17 +6,13 @@ permissions:
 jobs:
   pltr:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: '3.11' }
       - run: pip install requests
-      - name: Base
-        env:
-          MASSIVE_API_KEY: ${{ secrets.MASSIVE_API_KEY }}
-        run: python scripts/analyze_pltr.py
-      - name: FullChain
+      - name: FullAnalysis
         env:
           MASSIVE_API_KEY: ${{ secrets.MASSIVE_API_KEY }}
         run: python scripts/analyze_pltr_full_chain.py

@@ -9,7 +9,84 @@ S = requests.Session()
 S.headers.update({"Authorization": f"Bearer {API}"})
 TICKER = "PLTR"
 
-print(f"=== {TICKER} FULL options chain @ {datetime.now(timezone.utc).isoformat()} ===\n")
+def getj(path, params=None):
+    for attempt in range(5):
+        try:
+            r = S.get(f"{BASE}{path}", params=params, timeout=120)
+            if r.status_code == 429:
+                time.sleep(3 + attempt*2); continue
+            return r.status_code, (r.json() if r.headers.get("content-type","").startswith("application/json") else {})
+        except Exception as e:
+            if attempt == 4: raise
+            time.sleep(1 + attempt)
+
+print(f"=== {TICKER} multi-signal read @ {datetime.now(timezone.utc).isoformat()} ===\n")
+
+# ---- A. Price/Volume ----
+end = datetime.now(timezone.utc).date()
+start = end - timedelta(days=30)
+sc, j = getj(f"/v2/aggs/ticker/{TICKER}/range/1/day/{start}/{end}", {"adjusted":"true","sort":"asc"})
+bars = j.get("results", [])
+print(f"[Price/Volume] last {len(bars)} daily bars (showing last 10)")
+for b in bars[-10:]:
+    d = datetime.fromtimestamp(b['t']/1000, timezone.utc).date()
+    print(f"  {d}  O={b['o']:.2f}  H={b['h']:.2f}  L={b['l']:.2f}  C={b['c']:.2f}  V={b['v']:>13,.0f}  VWAP={b.get('vw',0):.2f}")
+if len(bars) >= 2:
+    chg = (bars[-1]['c']/bars[-2]['c']-1)*100
+    chg5 = (bars[-1]['c']/bars[-6]['c']-1)*100 if len(bars)>=6 else None
+    chg20 = (bars[-1]['c']/bars[0]['c']-1)*100
+    avg_vol = sum(b['v'] for b in bars[-20:]) / min(20, len(bars))
+    last_vol_ratio = bars[-1]['v'] / avg_vol if avg_vol else 0
+    print(f"\n  1d change: {chg:+.2f}%   5d change: {chg5:+.2f}%   20d change: {chg20:+.2f}%")
+    print(f"  Last volume vs 20d avg: {last_vol_ratio:.2f}x")
+
+# ---- B. Dark Pool last 5 days ----
+print(f"\n[Dark Pool Trades] last 5 days")
+from datetime import timedelta as _td
+def trading_days_back(n):
+    out, d = [], datetime.now(timezone.utc).date() - _td(days=1)
+    while len(out) < n:
+        if d.weekday() < 5: out.append(d)
+        d -= _td(days=1)
+    return list(reversed(out))
+
+for day in trading_days_back(5):
+    start_ns = int(datetime.combine(day, datetime.min.time(), timezone.utc).timestamp()*1e9)
+    end_ns = int(datetime.combine(day+_td(days=1), datetime.min.time(), timezone.utc).timestamp()*1e9)
+    u = f"{BASE}/v3/trades/{TICKER}"
+    p = {"timestamp.gte":start_ns, "timestamp.lt":end_ns, "limit":50000, "order":"asc"}
+    total_n = dark_n = block_dark = block_tot = 0.0
+    venue_n = {201:0.0, 202:0.0, 203:0.0}
+    pages_t = 0
+    while u and pages_t < 40:
+        attempt = 0; resp=None
+        while attempt < 5:
+            try:
+                resp = S.get(u, params=p if pages_t==0 else None, timeout=120); break
+            except Exception:
+                attempt += 1; time.sleep(1+attempt)
+        if resp is None or resp.status_code != 200:
+            print(f"  ! {day} page {pages_t} failed"); break
+        jj = resp.json()
+        for tr in jj.get("results", []):
+            sz = tr.get("size") or 0; pr = tr.get("price") or 0
+            nn = sz*pr
+            if nn == 0: continue
+            total_n += nn
+            is_dark = tr.get("exchange")==4 and tr.get("trf_id") is not None
+            if is_dark:
+                dark_n += nn
+                if tr.get("trf_id") in venue_n: venue_n[tr.get("trf_id")] += nn
+            if nn >= 100_000:
+                block_tot += nn
+                if is_dark: block_dark += nn
+        u = jj.get("next_url"); p = None; pages_t += 1
+    dpr = dark_n/total_n*100 if total_n else 0
+    blk = block_dark/block_tot*100 if block_tot else 0
+    cart = venue_n[202]/total_n*100 if total_n else 0
+    print(f"  {day}  total ${total_n/1e6:>7.1f}M  dark ${dark_n/1e6:>7.1f}M ({dpr:5.2f}%)  blocks ${block_tot/1e6:>7.1f}M  block-dark% {blk:5.2f}  carteret% {cart:5.2f}")
+
+print(f"\n=== {TICKER} FULL options chain ===\n")
 
 # Paginate the full chain
 url = f"{BASE}/v3/snapshot/options/{TICKER}"
@@ -17,12 +94,23 @@ params = {"limit": 250, "order": "asc", "sort": "expiration_date"}
 all_contracts = []
 pages = 0
 underlying_price = None
-while url and pages < 50:
-    r = S.get(url, params=params if pages == 0 else None, timeout=60)
-    if r.status_code != 200:
-        print(f"  ! page {pages} HTTP {r.status_code}: {r.text[:200]}")
+while url and pages < 200:
+    last_err = None
+    j = None
+    for attempt in range(5):
+        try:
+            r = S.get(url, params=params if pages == 0 else None, timeout=120)
+            if r.status_code == 429:
+                time.sleep(3 + attempt*2); continue
+            if r.status_code != 200:
+                print(f"  ! page {pages} HTTP {r.status_code}: {r.text[:200]}"); j = None; break
+            j = r.json(); break
+        except Exception as e:
+            last_err = e
+            time.sleep(1 + attempt)
+    if j is None:
+        print(f"  ! page {pages} gave up after retries (last: {last_err})")
         break
-    j = r.json()
     results = j.get("results", [])
     all_contracts.extend(results)
     if results and underlying_price is None:
