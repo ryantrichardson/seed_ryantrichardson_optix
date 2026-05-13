@@ -1,59 +1,77 @@
-"""Probe every plausible 'dark pool / trades' endpoint to find what Ryan's plan unlocks."""
-import os, requests, json
+"""Probe trades endpoint to confirm we can pull a full day of trades with pagination."""
+import os, sys, requests, time
+from datetime import datetime, timedelta, timezone
 
-K = os.environ["MASSIVE_API_KEY"]
-H = "https://api.massive.com"
+API = os.environ["MASSIVE_API_KEY"]
+BASE = "https://api.massive.com"
+S = requests.Session()
+S.headers.update({"Authorization": f"Bearer {API}"})
 
-probes = [
-    # Trades-style endpoints
-    ("/v3/trades/SHOP",                 {"timestamp": "2026-05-08", "limit": 3}),
-    ("/v2/ticks/stocks/trades/SHOP/2026-05-08", {"limit": 3}),
-    ("/v1/last/trade/SHOP",             {}),
-    ("/v2/last/trade/SHOP",             {}),
+# Find most recent weekday with data (skip weekends)
+today = datetime.now(timezone.utc).date()
+test_date = today - timedelta(days=1)
+while test_date.weekday() >= 5:
+    test_date -= timedelta(days=1)
 
-    # Dark pool / off-exchange specific (if Massive added a derived endpoint)
-    ("/stocks/v1/dark-pool",            {"ticker":"SHOP","date.gte":"2026-04-01","limit":3}),
-    ("/stocks/v1/dark-pool/SHOP",       {"date.gte":"2026-04-01","limit":3}),
-    ("/stocks/v1/off-exchange-volume",  {"ticker":"SHOP","limit":3}),
-    ("/stocks/v1/trf-volume",           {"ticker":"SHOP","limit":3}),
-    ("/v3/aggregates/dark",             {"ticker":"SHOP","limit":3}),
-    ("/v3/dark-pool/SHOP",              {"limit":3}),
+print(f"Testing trades for SHOP on {test_date}")
 
-    # Aggs by tape / exchange (might give dark vs lit split)
-    ("/v3/snapshot/locale/us/markets/stocks/tickers/SHOP", {}),
-    ("/v1/marketstatus/now",            {}),
+# Use timestamp.gte and timestamp.lt to bound a single trading day
+# Massive timestamps are nanoseconds since epoch
+start_ns = int(datetime.combine(test_date, datetime.min.time(), timezone.utc).timestamp() * 1e9)
+end_ns = int(datetime.combine(test_date + timedelta(days=1), datetime.min.time(), timezone.utc).timestamp() * 1e9)
 
-    # Reference to inspect what is included
-    ("/v3/reference/exchanges",         {}),
+url = f"{BASE}/v3/trades/SHOP"
+params = {
+    "timestamp.gte": start_ns,
+    "timestamp.lt": end_ns,
+    "limit": 50000,
+    "order": "asc",
+}
 
-    # Short-volume confirmation (we know this works)
-    ("/stocks/v1/short-volume",         {"ticker":"SHOP","limit":1}),
+total_trades = 0
+dark_trades = 0
+trf_venues = {}
+conditions_seen = set()
+exchanges_seen = set()
+page = 0
+t0 = time.time()
 
-    # Account info if exposed
-    ("/v3/me",                          {}),
-    ("/v1/me",                          {}),
-    ("/account",                        {}),
-]
+while url and page < 20:  # safety cap
+    r = S.get(url, params=params if page == 0 else None, timeout=60)
+    if r.status_code != 200:
+        print(f"Page {page} ERROR {r.status_code}: {r.text[:300]}")
+        break
+    j = r.json()
+    results = j.get("results", [])
+    total_trades += len(results)
+    for tr in results:
+        exch = tr.get("exchange")
+        trf_id = tr.get("trf_id")
+        exchanges_seen.add(exch)
+        if tr.get("conditions"):
+            for c in tr["conditions"]:
+                conditions_seen.add(c)
+        if exch == 4 and trf_id is not None:
+            dark_trades += 1
+            trf_venues[trf_id] = trf_venues.get(trf_id, 0) + 1
+    next_url = j.get("next_url")
+    if next_url and "apiKey" not in next_url and "apikey" not in next_url.lower():
+        # Append auth via header (already set) — just follow
+        url = next_url
+    else:
+        url = next_url
+    page += 1
+    print(f"Page {page}: +{len(results)} trades (total={total_trades})  next={'yes' if url else 'no'}")
+    if not url:
+        break
 
-for path, params in probes:
-    p = dict(params); p["apiKey"] = K
-    try:
-        r = requests.get(H+path, params=p, timeout=30)
-        body = ""
-        if r.status_code != 200:
-            try: body = r.json().get("message","")[:140]
-            except: body = r.text[:140]
-        else:
-            try:
-                j = r.json()
-                if isinstance(j, dict):
-                    if "results" in j and isinstance(j["results"], list):
-                        body = f"OK n={len(j['results'])} keys={list((j['results'][0] or {}).keys())[:8] if j['results'] else []}"
-                    else:
-                        body = f"OK keys={list(j.keys())[:8]}"
-                else:
-                    body = f"OK type={type(j).__name__}"
-            except: body = "OK (non-JSON)"
-        print(f"{r.status_code:3}  {path:55s}  {body}")
-    except Exception as e:
-        print(f"ERR  {path:55s}  {e}")
+elapsed = time.time() - t0
+print(f"\n=== SUMMARY for SHOP {test_date} ===")
+print(f"Total trades:        {total_trades:,}")
+print(f"Dark trades (exch=4 & trf_id): {dark_trades:,}")
+print(f"Dark ratio:          {(dark_trades/total_trades*100) if total_trades else 0:.2f}%")
+print(f"TRF venue split:     {trf_venues}")
+print(f"Exchanges seen:      {sorted(e for e in exchanges_seen if e is not None)}")
+print(f"Sample conditions:   {sorted(conditions_seen)[:30]}")
+print(f"Pages fetched:       {page}")
+print(f"Elapsed:             {elapsed:.1f}s")
