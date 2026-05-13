@@ -1,0 +1,30 @@
+{
+  "ticker": "PYPL",
+  "rows_written": 251,
+  "latest_row": {
+    "date": "2026-05-12",
+    "ticker": "PYPL",
+    "total_volume": 3842148.97,
+    "short_volume": 1105762.19,
+    "short_volume_ratio": 28.78,
+    "carteret_pct_of_short": 96.9215,
+    "nyse_short_volume": 25891,
+    "nasdaq_carteret_short_volume": 1071721,
+    "nasdaq_chicago_short_volume": 8150,
+    "adf_short_volume": 0,
+    "exempt_volume": 1819.0,
+    "svr_sma20": 33.4375,
+    "svr_zscore60": -1.4295
+  },
+  "how_to_read": {
+    "short_volume_ratio": "Daily % of total volume sold short. 50% is typical.",
+    "above_60": "Heavy shorting pressure - watch for capitulation or squeeze",
+    "below_40": "Shorts retreating - usually bullish continuation",
+    "carteret_pct_of_short": "% of shorts routed through NASDAQ Carteret (FINRA TRF). Higher = more off-exchange/institutional short flow.",
+    "svr_zscore60": "z-score vs trailing 60d. |z| > 2 = unusual day."
+  },
+  "tradestation_symbols": {
+    "primary": "PYPL_SVR_TS",
+    "carteret": "PYPL_SVR_NASDAQ_TS"
+  }
+}

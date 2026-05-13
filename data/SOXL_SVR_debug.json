@@ -1,0 +1,30 @@
+{
+  "ticker": "SOXL",
+  "rows_written": 251,
+  "latest_row": {
+    "date": "2026-05-12",
+    "ticker": "SOXL",
+    "total_volume": 37270392.81,
+    "short_volume": 23199585.61,
+    "short_volume_ratio": 62.25,
+    "carteret_pct_of_short": 96.1399,
+    "nyse_short_volume": 403472,
+    "nasdaq_carteret_short_volume": 22304057,
+    "nasdaq_chicago_short_volume": 492055,
+    "adf_short_volume": 0,
+    "exempt_volume": 2504760.83171,
+    "svr_sma20": 54.992,
+    "svr_zscore60": 1.2504
+  },
+  "how_to_read": {
+    "short_volume_ratio": "Daily % of total volume sold short. 50% is typical.",
+    "above_60": "Heavy shorting pressure - watch for capitulation or squeeze",
+    "below_40": "Shorts retreating - usually bullish continuation",
+    "carteret_pct_of_short": "% of shorts routed through NASDAQ Carteret (FINRA TRF). Higher = more off-exchange/institutional short flow.",
+    "svr_zscore60": "z-score vs trailing 60d. |z| > 2 = unusual day."
+  },
+  "tradestation_symbols": {
+    "primary": "SOXL_SVR_TS",
+    "carteret": "SOXL_SVR_NASDAQ_TS"
+  }
+}

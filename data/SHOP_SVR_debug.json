@@ -1,0 +1,30 @@
+{
+  "ticker": "SHOP",
+  "rows_written": 251,
+  "latest_row": {
+    "date": "2026-05-12",
+    "ticker": "SHOP",
+    "total_volume": 5559942.79,
+    "short_volume": 1980295.22,
+    "short_volume_ratio": 35.62,
+    "carteret_pct_of_short": 94.5566,
+    "nyse_short_volume": 81367,
+    "nasdaq_carteret_short_volume": 1872500,
+    "nasdaq_chicago_short_volume": 26427,
+    "adf_short_volume": 0,
+    "exempt_volume": 9968.0,
+    "svr_sma20": 41.2325,
+    "svr_zscore60": -0.5732
+  },
+  "how_to_read": {
+    "short_volume_ratio": "Daily % of total volume sold short. 50% is typical.",
+    "above_60": "Heavy shorting pressure - watch for capitulation or squeeze",
+    "below_40": "Shorts retreating - usually bullish continuation",
+    "carteret_pct_of_short": "% of shorts routed through NASDAQ Carteret (FINRA TRF). Higher = more off-exchange/institutional short flow.",
+    "svr_zscore60": "z-score vs trailing 60d. |z| > 2 = unusual day."
+  },
+  "tradestation_symbols": {
+    "primary": "SHOP_SVR_TS",
+    "carteret": "SHOP_SVR_NASDAQ_TS"
+  }
+}
