@@ -1,0 +1,37 @@
+name: DPR Pipeline
+
+on:
+  schedule:
+    - cron: '15 23 * * 1-5'   # 23:15 UTC weekdays (after market close)
+  workflow_dispatch:
+    inputs:
+      days_back:
+        description: 'Trading days to backfill (default 60)'
+        required: false
+        default: '60'
+
+permissions:
+  contents: write
+
+jobs:
+  dpr:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - name: Run DPR pipeline
+        env:
+          MASSIVE_API_KEY: ${{ secrets.MASSIVE_API_KEY }}
+          DPR_DAYS_BACK: ${{ github.event.inputs.days_back || '5' }}
+        run: python scripts/update_dpr.py
+      - name: Commit data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/
+          git diff --cached --quiet || git commit -m "DPR update $(date -u +%Y-%m-%d)"
+          git push
