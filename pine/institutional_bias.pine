@@ -1,0 +1,150 @@
+//@version=5
+indicator("Institutional Bias Oscillator", shorttitle="IBO", overlay=false, precision=1)
+
+// =====================================================================
+// Institutional Bias Oscillator
+// Composite 0-100 score combining:
+//   - FINRA short volume ratio (lower = more bullish)
+//   - Volume vs 20-day average (higher = institutional interest)
+//   - Price momentum (5d + 20d trend)
+//   - Up/down volume divergence (accumulation vs distribution)
+//   - Dollar-volume spike on green days (block buying proxy)
+//
+// Output: 0-100 score
+//   70-100 (green)  = accumulation (SLV-style read)
+//   30-70  (yellow) = neutral/mixed
+//   0-30   (red)    = distribution (PLTR-style read)
+// =====================================================================
+
+// ---------- Inputs ----------
+length     = input.int(20,  "Lookback period",            minval=5,  maxval=100)
+short_wt   = input.float(25, "Weight: Short volume",      minval=0,  maxval=100, step=5)
+vol_wt     = input.float(15, "Weight: Volume vs avg",     minval=0,  maxval=100, step=5)
+mom_wt     = input.float(25, "Weight: Price momentum",    minval=0,  maxval=100, step=5)
+acc_wt     = input.float(20, "Weight: Accumulation/Dist", minval=0,  maxval=100, step=5)
+blk_wt     = input.float(15, "Weight: Block buying",      minval=0,  maxval=100, step=5)
+smooth_len = input.int(3,    "Score smoothing (EMA)",     minval=1,  maxval=20)
+show_hist  = input.bool(true, "Show 5-day momentum histogram")
+
+// ---------- Helpers ----------
+// Normalize a value to 0-100 with optional inversion (so higher input = higher score)
+f_norm(_val, _lo, _hi, _invert) =>
+    raw = (_val - _lo) / (_hi - _lo) * 100
+    clipped = math.max(0, math.min(100, raw))
+    _invert ? 100 - clipped : clipped
+
+// ---------- Component 1: FINRA Short Volume Ratio ----------
+// TradingView serves FINRA short volume as a separate symbol per ticker.
+// e.g. FINRA:AAPL_SHORT_VOLUME and total volume in the matching base.
+// We fall back to a simulated SVR using up/down vol ratio if FINRA feed missing.
+sv_sym  = "FINRA:" + syminfo.ticker + "_SHORT_VOLUME"
+tv_sym  = "FINRA:" + syminfo.ticker + "_TOTAL_VOLUME"
+short_v = request.security(sv_sym, timeframe.period, close, ignore_invalid_symbol=true)
+total_v = request.security(tv_sym, timeframe.period, close, ignore_invalid_symbol=true)
+
+svr_raw   = (not na(short_v) and not na(total_v) and total_v > 0) ? (short_v / total_v) * 100 : na
+// Fallback: estimate short-flow proxy from down-volume share
+down_vol_share = close < open ? volume : 0.0
+down_vol_avg   = ta.sma(down_vol_share, length)
+total_vol_avg  = ta.sma(volume, length)
+fallback_svr   = (total_vol_avg > 0) ? (down_vol_avg / total_vol_avg) * 100 : 50
+svr_pct        = na(svr_raw) ? fallback_svr : svr_raw
+
+// Normalize: SVR 35-65 range, lower = bullish (invert)
+short_score = f_norm(svr_pct, 35, 65, true)
+
+// ---------- Component 2: Volume vs 20-day average ----------
+vol_avg   = ta.sma(volume, length)
+vol_ratio = vol_avg > 0 ? volume / vol_avg : 1.0
+// Higher = better, expect 0.5x to 2.5x range
+vol_score = f_norm(vol_ratio, 0.5, 2.5, false)
+
+// ---------- Component 3: Price momentum (composite of 5d + 20d returns) ----------
+ret_5d  = (close / close[5]  - 1) * 100
+ret_20d = (close / close[20] - 1) * 100
+// Map -10% to +10% over 20d
+mom_5_score  = f_norm(ret_5d,  -5,  5,  false)
+mom_20_score = f_norm(ret_20d, -10, 10, false)
+mom_score    = (mom_5_score * 0.4) + (mom_20_score * 0.6)
+
+// ---------- Component 4: Accumulation/Distribution (up-day vs down-day volume) ----------
+up_vol   = close > open ? volume : 0.0
+dn_vol   = close < open ? volume : 0.0
+up_sum   = math.sum(up_vol, length)
+dn_sum   = math.sum(dn_vol, length)
+acc_raw  = (up_sum + dn_sum) > 0 ? up_sum / (up_sum + dn_sum) : 0.5
+// Range 0.4 to 0.7 typical
+acc_score = f_norm(acc_raw * 100, 40, 70, false)
+
+// ---------- Component 5: Block-buying proxy (dollar volume spike on green days) ----------
+dollar_vol     = close * volume
+dollar_vol_avg = ta.sma(dollar_vol, length)
+green_day      = close > open
+dollar_spike   = (dollar_vol_avg > 0) ? (dollar_vol / dollar_vol_avg) : 1.0
+// Reward green-day dollar spikes more than red-day ones
+blk_raw        = green_day ? dollar_spike * 1.2 : dollar_spike * 0.6
+blk_score      = f_norm(blk_raw, 0.5, 2.5, false)
+
+// ---------- Composite Score ----------
+total_wt = short_wt + vol_wt + mom_wt + acc_wt + blk_wt
+score_raw = total_wt > 0 ?
+     (short_score * short_wt + vol_score * vol_wt + mom_score * mom_wt +
+      acc_score * acc_wt + blk_score * blk_wt) / total_wt :
+     50.0
+score = ta.ema(score_raw, smooth_len)
+
+// 5-day change in score (momentum)
+score_chg = score - score[5]
+
+// ---------- Plotting ----------
+// Zones
+hline(70, "Accumulation zone", color=color.new(color.green, 70))
+hline(50, "Neutral",           color=color.new(color.gray, 60), linestyle=hline.style_dotted)
+hline(30, "Distribution zone", color=color.new(color.red, 70))
+
+// Background tinting
+bg_color = score >= 70 ? color.new(color.green, 92) :
+           score <= 30 ? color.new(color.red,   92) :
+           color.new(color.yellow, 95)
+bgcolor(bg_color, title="Zone tint")
+
+// Histogram of score change
+hist_color = score_chg >= 0 ? color.new(color.teal, 30) : color.new(color.maroon, 30)
+plot(show_hist ? score_chg : na, "5d Score Change", color=hist_color, style=plot.style_histogram, linewidth=2)
+
+// Main score line, colored by level
+line_color = score >= 70 ? color.green :
+             score <= 30 ? color.red   :
+             color.new(color.orange, 0)
+plot(score, "Institutional Bias", color=line_color, linewidth=3)
+
+// ---------- Component readout in data window ----------
+plot(short_score, "  Short-vol score (inv)", color=color.new(color.purple, 40), display=display.data_window)
+plot(vol_score,   "  Volume-vs-avg score",   color=color.new(color.blue, 40),   display=display.data_window)
+plot(mom_score,   "  Momentum score",        color=color.new(color.aqua, 40),   display=display.data_window)
+plot(acc_score,   "  Accumulation score",    color=color.new(color.lime, 40),   display=display.data_window)
+plot(blk_score,   "  Block-buying score",    color=color.new(color.fuchsia,40), display=display.data_window)
+plot(svr_pct,     "  Raw SVR %",             color=color.new(color.silver, 0),  display=display.data_window)
+plot(vol_ratio,   "  Volume ratio (x)",      color=color.new(color.silver, 0),  display=display.data_window)
+plot(ret_5d,      "  5d return %",           color=color.new(color.silver, 0),  display=display.data_window)
+plot(ret_20d,     "  20d return %",          color=color.new(color.silver, 0),  display=display.data_window)
+
+// ---------- Alerts ----------
+alertcondition(ta.crossover(score, 70),  "Crossed into accumulation zone",  "Institutional Bias crossed above 70 — accumulation")
+alertcondition(ta.crossunder(score, 30), "Crossed into distribution zone",  "Institutional Bias crossed below 30 — distribution")
+alertcondition(ta.crossover(score, 50),  "Turned bullish (above 50)",       "Institutional Bias turned bullish (above 50)")
+alertcondition(ta.crossunder(score, 50), "Turned bearish (below 50)",       "Institutional Bias turned bearish (below 50)")
+
+// ---------- Optional label on last bar ----------
+if barstate.islast
+    label.delete(label.all[1])
+    txt = "IBO: " + str.tostring(score, "#.0") +
+          "\n5d Δ: " + str.tostring(score_chg, "+#.0;-#.0") +
+          "\nSVR: " + str.tostring(svr_pct, "#.0") + "%" +
+          "\nVol: " + str.tostring(vol_ratio, "#.00") + "x" +
+          "\n20d: " + str.tostring(ret_20d, "+#.0;-#.0") + "%"
+    label.new(bar_index, score, txt,
+              style=label.style_label_left,
+              color=line_color,
+              textcolor=color.white,
+              size=size.normal)
