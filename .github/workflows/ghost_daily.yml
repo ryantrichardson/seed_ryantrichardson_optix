@@ -1,0 +1,40 @@
+name: Ghost Wick Daily Scanner
+on:
+  schedule:
+    - cron: '15 21 * * 1-5'  # 5:15 PM ET weekdays (4:15 PM during EDT)
+  workflow_dispatch:
+    inputs:
+      tickers: { default: 'TSLA,AMD,NVDA,PLTR,SHOP' }
+      scan_date: { default: '' }
+permissions: { contents: write }
+jobs:
+  c:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with: { token: "${{ secrets.GITHUB_TOKEN }}" }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install requests
+      - env:
+          MASSIVE_API_KEY: "${{ secrets.MASSIVE_API_KEY }}"
+          TICKERS: "${{ inputs.tickers || 'TSLA,AMD,NVDA,PLTR,SHOP' }}"
+          SCAN_DATE: "${{ inputs.scan_date }}"
+        run: python scripts/ghost_wick_daily.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: daily-wicks
+          path: data/daily_wicks/
+          retention-days: 90
+      - run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && \
+            git add data/daily_wicks/ && \
+            (git diff --staged --quiet || git commit -m "Daily wick scan") && \
+            git push && break
+            sleep 5
+          done
