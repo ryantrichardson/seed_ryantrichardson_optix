@@ -12,7 +12,7 @@ jobs:
         with: { python-version: '3.11' }
       - run: pip install requests matplotlib
       - env: { MASSIVE_API_KEY: "${{ secrets.MASSIVE_API_KEY }}" }
-        run: python scripts/render_extreme_wicks.py
+        run: python scripts/render_extreme_wicks_v2.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -25,7 +25,7 @@ jobs:
           for i in 1 2 3 4 5; do
             git pull --rebase origin main && \
             git add data/charts/*.png && \
-            (git diff --staged --quiet || git commit -m "Extreme wick charts") && \
+            (git diff --staged --quiet || git commit -m "Extreme wick charts v2 (with forward 10d)") && \
             git push && break
             sleep 5
           done
