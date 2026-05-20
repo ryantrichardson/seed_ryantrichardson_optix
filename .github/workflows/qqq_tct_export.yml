@@ -46,6 +46,7 @@ jobs:
         run: python scripts/export_tct_ohlcv.py
 
       - name: Upload artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: tct-ohlcv-${{ inputs.ticker }}-${{ inputs.from_date }}-${{ inputs.to_date }}
