@@ -23,9 +23,21 @@ jobs:
           START_DATE: "${{ inputs.start_date }}"
           END_DATE:   "${{ inputs.end_date }}"
         run: python scripts/ghost_wick_v2.py
+      - name: Upload artifact (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ghost-wicks-${{ inputs.ticker }}
+          path: data/ghost_wicks_v2_*.csv
+          retention-days: 30
       - run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add data/ghost_wicks_v2_*.csv || true
-          git diff --staged --quiet || git commit -m "Ghost wick v2 ${{ inputs.ticker }} ${{ inputs.start_date }} to ${{ inputs.end_date }}"
-          git push || true
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && \
+            git add data/ghost_wicks_v2_*.csv && \
+            (git diff --staged --quiet || git commit -m "Ghost wick v2 ${{ inputs.ticker }} ${{ inputs.start_date }} to ${{ inputs.end_date }}") && \
+            git push && break
+            echo "Push attempt $i failed, retrying..."
+            sleep 5
+          done
