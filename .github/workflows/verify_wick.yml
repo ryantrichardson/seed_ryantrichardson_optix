@@ -1,0 +1,15 @@
+name: Verify TSLA Wick
+on: { workflow_dispatch: {} }
+permissions: { contents: read }
+jobs:
+  c:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install requests
+      - name: Run
+        env: { MASSIVE_API_KEY: "${{ secrets.MASSIVE_API_KEY }}" }
+        run: python scripts/verify_tsla_wick.py
