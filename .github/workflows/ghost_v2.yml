@@ -1,0 +1,31 @@
+name: Ghost Wick v2
+on:
+  workflow_dispatch:
+    inputs:
+      ticker:     { default: 'TSLA' }
+      start_date: { default: '2025-11-19' }
+      end_date:   { default: '2026-05-19' }
+permissions:
+  contents: write
+jobs:
+  c:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with: { token: "${{ secrets.GITHUB_TOKEN }}" }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install requests
+      - env:
+          MASSIVE_API_KEY: "${{ secrets.MASSIVE_API_KEY }}"
+          TICKER:     "${{ inputs.ticker }}"
+          START_DATE: "${{ inputs.start_date }}"
+          END_DATE:   "${{ inputs.end_date }}"
+        run: python scripts/ghost_wick_v2.py
+      - run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add data/ghost_wicks_v2_*.csv || true
+          git diff --staged --quiet || git commit -m "Ghost wick v2 ${{ inputs.ticker }} ${{ inputs.start_date }} to ${{ inputs.end_date }}"
+          git push || true
