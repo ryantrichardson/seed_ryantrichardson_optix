@@ -1,0 +1,42 @@
+name: Ghost Wick Backtest
+on:
+  workflow_dispatch:
+    inputs:
+      start_date:
+        description: 'Start date (YYYY-MM-DD)'
+        default: '2025-11-19'
+      end_date:
+        description: 'End date (YYYY-MM-DD)'
+        default: '2026-05-19'
+      wick_pct:
+        description: 'Wick % threshold'
+        default: '1.0'
+      min_size:
+        description: 'Min trade size'
+        default: '10'
+permissions:
+  contents: write
+jobs:
+  c:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with: { token: "${{ secrets.GITHUB_TOKEN }}" }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install requests
+      - env:
+          MASSIVE_API_KEY: "${{ secrets.MASSIVE_API_KEY }}"
+          START_DATE: "${{ inputs.start_date }}"
+          END_DATE:   "${{ inputs.end_date }}"
+          WICK_PCT:   "${{ inputs.wick_pct }}"
+          MIN_SIZE:   "${{ inputs.min_size }}"
+        run: python scripts/ghost_wick_backtest.py
+      - name: Commit results
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add data/ghost_wicks_*.csv || true
+          git diff --staged --quiet || git commit -m "Ghost wick backtest ${{ inputs.start_date }} to ${{ inputs.end_date }}"
+          git push || true
