@@ -1,0 +1,31 @@
+name: Render Sweet Spot Wicks
+on: { workflow_dispatch: {} }
+permissions: { contents: write }
+jobs:
+  c:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with: { token: "${{ secrets.GITHUB_TOKEN }}" }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install requests matplotlib pandas
+      - env: { MASSIVE_API_KEY: "${{ secrets.MASSIVE_API_KEY }}" }
+        run: python scripts/render_sweetspot_wicks.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sweet-wick-charts
+          path: data/charts/sweet_*.png
+          retention-days: 30
+      - run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && \
+            git add data/charts/sweet_*.png && \
+            (git diff --staged --quiet || git commit -m "Sweet spot wick charts") && \
+            git push && break
+            sleep 5
+          done
