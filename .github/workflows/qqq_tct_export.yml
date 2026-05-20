@@ -1,0 +1,54 @@
+name: QQQ TCT OHLCV Export
+
+on:
+  workflow_dispatch:
+    inputs:
+      ticker:
+        description: 'Ticker symbol'
+        default: 'QQQ'
+        required: true
+      from_date:
+        description: 'Start date (YYYY-MM-DD)'
+        required: true
+      to_date:
+        description: 'End date (YYYY-MM-DD)'
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Validate inputs
+        run: |
+          python -c "import datetime; datetime.datetime.strptime('${{ inputs.from_date }}', '%Y-%m-%d')"
+          python -c "import datetime; datetime.datetime.strptime('${{ inputs.to_date }}',   '%Y-%m-%d')"
+
+      - name: Export TCT OHLCV
+        env:
+          MASSIVE_API_KEY: ${{ secrets.MASSIVE_API_KEY }}
+          TICKER: ${{ inputs.ticker }}
+          FROM_DATE: ${{ inputs.from_date }}
+          TO_DATE: ${{ inputs.to_date }}
+          OUTPUT_DIR: data/tct_export
+        run: python scripts/export_tct_ohlcv.py
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: tct-ohlcv-${{ inputs.ticker }}-${{ inputs.from_date }}-${{ inputs.to_date }}
+          path: data/tct_export/
+          if-no-files-found: error
+          retention-days: 14
