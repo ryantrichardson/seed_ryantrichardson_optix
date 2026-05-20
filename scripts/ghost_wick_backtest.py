@@ -107,6 +107,15 @@ for day_idx, day in enumerate(days):
             # Filter for TRF prints (off-exchange)
             if "trf_id" not in t:
                 continue
+            # Exclude mechanical/aggregated prints that don't represent directional flow:
+            #   2  = Average Price Trade (VWAP fill, reported all day)
+            #   12 = Form T (extended hours, not regular session)
+            #   16 = Stopped Stock
+            #   33 = Sold (Out of Sequence)
+            #   52, 53 = Derivatively Priced / Re-Opening (auction)
+            conds = set(t.get("conditions") or [])
+            if conds & {2, 12, 16, 33, 52, 53}:
+                continue
             trf_trades += 1
             if t.get("size", 0) < MIN_SIZE:
                 continue
