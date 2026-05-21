@@ -32,12 +32,17 @@ PCT_LO  = float(os.environ.get("PCT_LO", "5"))
 PCT_HI  = float(os.environ.get("PCT_HI", "100"))
 N       = int(os.environ.get("N", "10"))
 TAG     = os.environ.get("TAG", "bucket")
+TOUCHED = os.environ.get("TOUCHED", "any")  # 'true' (winners), 'false' (non-winners), 'any'
 CSV     = f"data/ghost_wicks_v2_{TICKER}_trade.csv"
 
-print(f"Ticker={TICKER}  wick_pct in [{PCT_LO},{PCT_HI})  N={N}  tag={TAG}")
+print(f"Ticker={TICKER}  wick_pct in [{PCT_LO},{PCT_HI})  N={N}  tag={TAG}  touched={TOUCHED}")
 
 df = pd.read_csv(CSV)
 sub = df[(df.wick_pct >= PCT_LO) & (df.wick_pct < PCT_HI)].copy().sort_values("date").reset_index(drop=True)
+if TOUCHED.lower() == "true":
+    sub = sub[sub.touched == True].reset_index(drop=True)
+elif TOUCHED.lower() == "false":
+    sub = sub[sub.touched == False].reset_index(drop=True)
 print(f"Total wicks in bucket: {len(sub)}")
 if len(sub) == 0:
     raise SystemExit("No wicks in this bucket — exit.")

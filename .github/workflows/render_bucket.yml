@@ -7,6 +7,7 @@ on:
       pct_hi:   { default: '100' }
       n:        { default: '10' }
       tag:      { default: 'b' }
+      touched:  { default: 'any' }
 permissions: { contents: write }
 jobs:
   c:
@@ -25,6 +26,7 @@ jobs:
           PCT_HI: "${{ inputs.pct_hi }}"
           N:      "${{ inputs.n }}"
           TAG:    "${{ inputs.tag }}"
+          TOUCHED: "${{ inputs.touched }}"
         run: python scripts/render_bucket_wicks.py
       - uses: actions/upload-artifact@v4
         if: always()
