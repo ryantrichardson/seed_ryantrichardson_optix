@@ -1,0 +1,30 @@
+name: INTU 10-day ghost wick scan
+on:
+  workflow_dispatch:
+    inputs:
+      min_wick_pct:
+        description: 'Minimum wick % (default 0.5)'
+        required: false
+        default: '0.5'
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - name: Scan INTU
+        env:
+          MASSIVE_API_KEY: ${{ secrets.MASSIVE_API_KEY }}
+          MIN_WICK_PCT: ${{ inputs.min_wick_pct }}
+        run: python scripts/intu_10day_scan.py
+      - name: Commit results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/daily_wicks/intu_10day.* || true
+          git commit -m "INTU 10-day scan results" || echo "no changes"
+          git push || echo "push failed (logs still have data)"
