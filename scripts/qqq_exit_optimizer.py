@@ -35,7 +35,7 @@ print(f"Loaded {len(WICKS)} QQQ 1-2% wicks")
 
 
 def fetch_minute_bars(ticker, start_dt_et, end_dt_et):
-    """Fetch 1-min bars (built from raw trades, same rules as scanner) between two ET datetimes."""
+    """Fetch 1-min bars from /v3/trades (used only for wick day - raw trades incl TRF)."""
     u = f"{BASE}/v3/trades/{ticker}"
     p = {"timestamp.gte": int(start_dt_et.timestamp()*1e9),
          "timestamp.lt":  int(end_dt_et.timestamp()*1e9),
@@ -61,6 +61,25 @@ def fetch_minute_bars(ticker, start_dt_et, end_dt_et):
     for m in sorted(by_minute):
         ps = by_minute[m]
         bars.append({"t": m, "o": ps[0], "h": max(ps), "l": min(ps), "c": ps[-1], "n": len(ps)})
+    return bars
+
+
+def fetch_minute_aggs(ticker, start_date_str, end_date_str):
+    """Fetch 1-min bars from /v2/aggs (fast, used for forward window)."""
+    u = f"{BASE}/v2/aggs/ticker/{ticker}/range/1/minute/{start_date_str}/{end_date_str}"
+    p = {"adjusted":"true","sort":"asc","limit":50000}
+    bars = []
+    pages = 0
+    while u and pages < 50:
+        for attempt in range(5):
+            try: r = S.get(u, params=p if pages==0 else None, timeout=60); break
+            except Exception: time.sleep(1+attempt)
+        if r.status_code != 200: break
+        j = r.json()
+        for x in j.get("results", []):
+            ts = datetime.fromtimestamp(x["t"]/1000, tz=timezone.utc).astimezone(ET)
+            bars.append({"t": ts, "o": x["o"], "h": x["h"], "l": x["l"], "c": x["c"], "n": x.get("n",0)})
+        u = j.get("next_url"); p = None; pages += 1
     return bars
 
 
@@ -134,8 +153,11 @@ for i, w in WICKS.iterrows():
     pre_start = sess_start
     day_bars = fetch_minute_bars("QQQ", pre_start, wick_session_end)
 
-    # 2) Forward bars: wick session end → +20 calendar days
-    forward_bars = fetch_minute_bars("QQQ", wick_session_end, end_calendar)
+    # 2) Forward bars: wick session end → +20 calendar days (use fast aggs)
+    fwd_start_str = wick_dt.strftime("%Y-%m-%d")
+    fwd_end_str = end_calendar.strftime("%Y-%m-%d")
+    forward_bars_all = fetch_minute_aggs("QQQ", fwd_start_str, fwd_end_str)
+    forward_bars = [b for b in forward_bars_all if b['t'] >= wick_session_end]
 
     # 3) Daily bars for forward window
     daily = fetch_daily_bars("QQQ", wick_date, n_forward=12)
