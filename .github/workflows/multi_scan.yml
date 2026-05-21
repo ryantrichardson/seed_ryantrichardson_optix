@@ -1,0 +1,29 @@
+name: Multi-ticker ghost wick scan
+on:
+  workflow_dispatch:
+    inputs:
+      tickers:
+        required: true
+      dates:
+        required: true
+      min_wick_pct:
+        default: '0.5'
+      out_tag:
+        required: true
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - env:
+          MASSIVE_API_KEY: ${{ secrets.MASSIVE_API_KEY }}
+          TICKERS: ${{ inputs.tickers }}
+          DATES: ${{ inputs.dates }}
+          MIN_WICK_PCT: ${{ inputs.min_wick_pct }}
+          OUT_TAG: ${{ inputs.out_tag }}
+        run: python scripts/multi_scan.py
