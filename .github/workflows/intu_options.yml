@@ -1,0 +1,23 @@
+name: intu_options
+on:
+  workflow_dispatch: {}
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - name: Pull INTU LEAP chain
+        env:
+          MASSIVE_API_KEY: ${{ secrets.MASSIVE_API_KEY }}
+        run: python scripts/intu_options_chain.py
+      - name: Commit
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add data/options/ || true
+          git diff --cached --quiet || git commit -m "INTU LEAP options snapshot"
+          git push
