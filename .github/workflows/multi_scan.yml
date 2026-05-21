@@ -27,3 +27,11 @@ jobs:
           MIN_WICK_PCT: ${{ inputs.min_wick_pct }}
           OUT_TAG: ${{ inputs.out_tag }}
         run: python scripts/multi_scan.py
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/daily_wicks/*.csv data/daily_wicks/*.json || true
+          git commit -m "Multi-scan results ${{ inputs.out_tag }}" || echo "no changes"
+          git pull --rebase || true
+          git push || echo push failed
