@@ -1,5 +1,5 @@
 """
-Verify the MSFT wick on 2026-04-20 around 13:45 ET.
+Verify the MSFT wick on 2026-05-18 around 13:45 ET.
 Show all trades in the 13:35-13:55 window, find the extreme print,
 fingerprint it (lit vs TRF, conditions, size), and compare to surrounding price.
 Chart showed: O 424.15, H 424.275, L 415.76, C 423.975 -- ~1.94% lower wick.
@@ -14,7 +14,7 @@ S = requests.Session()
 S.headers.update({"Authorization": f"Bearer {API}"})
 ET = timezone(timedelta(hours=-4))
 TICKER = "MSFT"
-DAY = "2026-04-20"
+DAY = "2026-05-18"
 
 def get_trades(ticker, day_str):
     d = datetime.strptime(day_str, "%Y-%m-%d")
