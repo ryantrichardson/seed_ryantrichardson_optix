@@ -1,0 +1,20 @@
+name: block_classifier_pilot
+on: workflow_dispatch
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install requests
+      - run: python scripts/block_classifier_pilot.py
+        env:
+          MASSIVE_API_KEY: ${{ secrets.MASSIVE_API_KEY }}
+      - name: Commit results
+        run: |
+          git config user.name "actions" && git config user.email "actions@github.com"
+          git pull --rebase
+          git add data/pilot_block_classifier_results.csv data/pilot_block_classifier.json
+          git diff --cached --quiet || git commit -m "pilot results"
+          git push
