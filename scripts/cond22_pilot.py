@@ -72,10 +72,11 @@ print(f"\n[2/3] Scanning trade tape for cond-22 prints (this is the slow part)..
 candidates = []
 
 for trading_day in dates_sorted:
-    # Pull 15:30 (RTH last 30 min) through 17:00 ET only — cond 22 prints cluster around close
-    # This dramatically cuts API calls. Adjust if we want full-day later.
-    day_start = datetime.combine(trading_day, datetime.min.time(), tzinfo=ET).replace(hour=9, minute=30)
-    day_end   = datetime.combine(trading_day, datetime.min.time(), tzinfo=ET).replace(hour=17, minute=0)
+    # Narrow window: 15:50 RTH through 16:35 AH only. cond 22 prints reliably cluster
+    # around the regular session close because that's when VWAP fills get booked out.
+    # This cuts the trade volume per day from ~3-5M down to ~50-150k.
+    day_start = datetime.combine(trading_day, datetime.min.time(), tzinfo=ET).replace(hour=15, minute=50)
+    day_end   = datetime.combine(trading_day, datetime.min.time(), tzinfo=ET).replace(hour=16, minute=35)
     u = f"{BASE}/v3/trades/{TICKER}"
     p = {"timestamp.gte": int(day_start.timestamp() * 1e9),
          "timestamp.lt":  int(day_end.timestamp() * 1e9),
