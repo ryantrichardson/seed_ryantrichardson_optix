@@ -1,0 +1,31 @@
+name: cond22_pilot
+on:
+  workflow_dispatch:
+    inputs:
+      days_back:
+        default: "180"
+      end_date:
+        default: "2026-05-21"
+jobs:
+  scan:
+    strategy:
+      fail-fast: false
+      matrix:
+        ticker: [NVDA, TSLA, AMD]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install requests
+      - run: python scripts/cond22_pilot.py
+        env:
+          MASSIVE_API_KEY: ${{ secrets.MASSIVE_API_KEY }}
+          TICKER: ${{ matrix.ticker }}
+          DAYS_BACK: ${{ inputs.days_back }}
+          END_DATE: ${{ inputs.end_date }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cond22_${{ matrix.ticker }}
+          path: data/cond22_pilot_${{ matrix.ticker }}.csv
+          if-no-files-found: warn
