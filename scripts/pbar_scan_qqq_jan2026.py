@@ -29,7 +29,7 @@ S.headers.update({"Authorization": f"Bearer {API}"})
 TICKER = "QQQ"
 START = datetime(2026, 1, 1).date()
 END = datetime(2026, 1, 31).date()
-WICK_MIN = 1.0
+WICK_MIN = 0.7
 WICK_MAX = 5.0
 TOL = 0.05  # $ tolerance when checking "at extreme"
 SESSION_START_H = 4   # 04:00 ET
@@ -218,20 +218,47 @@ def main():
         s_ns = int(dt.timestamp() * 1e9)
         e_ns = int((dt + timedelta(minutes=5)).timestamp() * 1e9)
         trades = fetch_trades(TICKER, s_ns, e_ns)
+        # "At extreme" = within TOL of extreme
         if direction == "down":
             ext_prints = [t for t in trades if (t.get("price") or 1e9) <= extreme + TOL]
         else:
             ext_prints = [t for t in trades if (t.get("price") or 0) >= extreme - TOL]
-        ext_count = len(ext_prints)
-        tape_ghost = (ext_count == 0)
-
-        verdict = "PBAR" if (tape_ghost and isolation_ok) else "not_pbar"
-        if not tape_ghost:
-            reason = "prints_at_extreme"
-        elif not isolation_ok:
-            reason = "isolation_fail"
+        # "Near extreme" = within 30% of the wick distance (between extreme and body edge)
+        body_edge = body_bot if direction == "down" else body_top
+        near_band = wick_len * 0.30
+        if direction == "down":
+            near_thresh = extreme + near_band
+            near_prints = [t for t in trades if (t.get("price") or 1e9) <= near_thresh]
         else:
-            reason = "passes_all"
+            near_thresh = extreme - near_band
+            near_prints = [t for t in trades if (t.get("price") or 0) >= near_thresh]
+        ext_count = len(ext_prints)
+        ext_size = sum(t.get("size") or 0 for t in ext_prints)
+        near_size = sum(t.get("size") or 0 for t in near_prints)
+        # Time span of prints in the bottom 30% of the wick
+        if near_prints:
+            tss = sorted(int(t.get("participant_timestamp") or t.get("sip_timestamp") or 0) for t in near_prints)
+            near_span_s = (tss[-1] - tss[0]) / 1e9
+        else:
+            near_span_s = 0
+
+        # Classify
+        # PURE_PHANTOM: zero prints at extreme
+        # BLOCK_PHANTOM: prints exist near extreme but they cluster in <=5 seconds
+        #                (i.e. a single block or burst, not sustained trading)
+        if ext_count == 0:
+            verdict = "PURE_PHANTOM"
+            reason = "no_prints_at_extreme"
+        elif near_span_s <= 5.0:
+            verdict = "BLOCK_PHANTOM"
+            reason = f"near_extreme_span={near_span_s:.1f}s"
+        else:
+            verdict = "not_pbar"
+            reason = f"sustained_trading_at_extreme ({near_span_s:.1f}s span)"
+        if not isolation_ok and verdict != "not_pbar":
+            verdict = "not_pbar"
+            reason = "isolation_fail"
+        tape_ghost = (verdict != "not_pbar")
 
         row = {
             "date": cand["day"].isoformat(),
@@ -249,14 +276,18 @@ def main():
             "extreme": round(extreme, 4),
             "trades_in_window": len(trades),
             "prints_at_extreme": ext_count,
+            "prints_at_extreme_size": ext_size,
+            "near_extreme_size": near_size,
+            "near_extreme_span_s": round(near_span_s, 2),
             "isolation_ok": isolation_ok,
             "verdict": verdict,
             "fail_reason": reason,
         }
         rows.append(row)
-        flag = "★" if verdict == "PBAR" else " "
+        flag = "★" if verdict in ("PURE_PHANTOM", "BLOCK_PHANTOM") else " "
         print(f"  {flag} [{k}/{len(candidates)}] {row['date']} {row['time_et']} {direction:4} "
-              f"wick_pct={row['wick_pct']:.2f}%  ext={extreme}  prints_at_ext={ext_count}  iso={isolation_ok}  → {verdict}")
+              f"wick_pct={row['wick_pct']:.2f}%  ext={extreme}  ext_prints={ext_count}  "
+              f"near_span={near_span_s:.1f}s  iso={isolation_ok}  → {verdict}")
 
         time.sleep(0.05)
 
@@ -268,16 +299,22 @@ def main():
             w.writerows(rows)
 
     # Summary
-    pbars = [r for r in rows if r["verdict"] == "PBAR"]
+    pure = [r for r in rows if r["verdict"] == "PURE_PHANTOM"]
+    block = [r for r in rows if r["verdict"] == "BLOCK_PHANTOM"]
+    pbars = pure + block
     print(f"\n{'='*80}")
-    print(f"SUMMARY: {len(rows)} candidates evaluated, {len(pbars)} pbars found")
+    print(f"SUMMARY: {len(rows)} candidates evaluated")
+    print(f"  PURE_PHANTOM  (zero prints at extreme): {len(pure)}")
+    print(f"  BLOCK_PHANTOM (one-burst prints at extreme): {len(block)}")
+    print(f"  TOTAL pbars: {len(pbars)}")
     print(f"{'='*80}")
     print(f"By direction:  up={sum(1 for r in pbars if r['direction']=='up')}  down={sum(1 for r in pbars if r['direction']=='down')}")
     print(f"By session:    pre={sum(1 for r in pbars if r['session']=='pre')}  rth={sum(1 for r in pbars if r['session']=='rth')}  post={sum(1 for r in pbars if r['session']=='post')}")
     print(f"\nAll pbars:")
     for r in pbars:
-        print(f"  {r['date']} {r['time_et']} ET  {r['direction']:4}  wick%={r['wick_pct']:.2f}  "
-              f"O={r['open']} H={r['high']} L={r['low']} C={r['close']}  ext={r['extreme']}  vol={r['volume']:,}")
+        print(f"  [{r['verdict']:13}] {r['date']} {r['time_et']} ET  {r['direction']:4}  wick%={r['wick_pct']:.2f}  "
+              f"O={r['open']} H={r['high']} L={r['low']} C={r['close']}  ext={r['extreme']}  "
+              f"vol={r['volume']:,}  near_span={r['near_extreme_span_s']}s")
 
     print(f"\nWrote {OUT}")
 
