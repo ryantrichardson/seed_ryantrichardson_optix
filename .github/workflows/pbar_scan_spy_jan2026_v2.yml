@@ -1,0 +1,21 @@
+name: pbar_scan_spy_jan2026_v2
+on:
+  workflow_dispatch:
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests
+      - env: {MASSIVE_API_KEY: "${{ secrets.MASSIVE_API_KEY }}"}
+        run: python scripts/pbar_scan_spy_jan2026_v2.py | tee output.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pbar_scan_spy_jan2026_v2
+          path: |
+            output.txt
+            data/pbar_spy_jan2026_v2.csv
