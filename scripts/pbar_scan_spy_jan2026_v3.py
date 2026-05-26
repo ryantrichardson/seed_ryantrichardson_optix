@@ -41,9 +41,13 @@ SESSION_START_H = 4
 SESSION_END_H = 20
 
 # Trade conditions to EXCLUDE when building ToS-style OHLC.
+#   37 = odd lot (ToS hides)
+#    2 = average price trade (CTA code 'B', UTP code 'W') - NAV/VWAP fills,
+#        not market-driven; ToS hides these so they don't create phantom wicks
+#   52 = average-price trade (newer SIP code) - same as 2, ToS hides
 # We KEEP cond 12 (Form-T - real pre/post trades) and cond 22 (late Form-T,
-# what ToS shows as wicks). We exclude pure odd lots, ToS hides those.
-EXCLUDE_CONDS = {37}  # odd lot only
+# what ToS shows as wicks) and 53 (Form-T late) when not also avg-price.
+EXCLUDE_CONDS = {37, 2, 52}
 EXCLUDE_SIZE_LT = 0   # keep all sizes for now; ToS shows all-but-odd-lots
 
 OUT = Path("data/pbar_spy_jan2026_v3.csv")
