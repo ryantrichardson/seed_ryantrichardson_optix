@@ -1,0 +1,24 @@
+name: pbar_scan_qqq_oct_nov2025
+on: {workflow_dispatch: {}}
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests
+      - env:
+          MASSIVE_API_KEY: ${{ secrets.MASSIVE_API_KEY }}
+          TICKER: QQQ
+          START: "2025-10-01"
+          END: "2025-11-30"
+        run: python scripts/pbar_scanner_v2.py | tee output.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pbar_scan_qqq_oct_nov2025
+          path: |
+            output.txt
+            data/pbar_qqq_2025-10-01_2025-11-30.csv
