@@ -1,0 +1,18 @@
+{
+  "wicks": [
+    {"id": 1,  "ticker": "TSLA", "date": "2026-05-19", "time_et": "13:45", "open": 405.58, "high": 405.60, "low": 394.64, "close": 404.74, "direction": "down", "extreme": 394.64, "body_color": "red",   "session": "rth"},
+    {"id": 2,  "ticker": "TSLA", "date": "2026-05-11", "time_et": "07:00", "open": 424.85, "high": 429.42, "low": 423.80, "close": 424.13, "direction": "up",   "extreme": 429.42, "body_color": "red",   "session": "pre"},
+    {"id": 3,  "ticker": "TSLA", "date": "2026-04-27", "time_et": "12:35", "open": 379.41, "high": 379.77, "low": 368.87, "close": 378.96, "direction": "down", "extreme": 368.87, "body_color": "red",   "session": "rth"},
+    {"id": 4,  "ticker": "TSLA", "date": "2026-04-21", "time_et": "15:50", "open": 394.00, "high": 394.00, "low": 387.99, "close": 388.48, "direction": "down", "extreme": 387.99, "body_color": "red",   "session": "rth"},
+    {"id": 5,  "ticker": "TSLA", "date": "2026-04-20", "time_et": "14:15", "open": 391.48, "high": 402.46, "low": 391.18, "close": 391.77, "direction": "up",   "extreme": 402.46, "body_color": "green", "session": "rth"},
+    {"id": 6,  "ticker": "TSLA", "date": "2026-04-09", "time_et": "11:35", "open": 346.51, "high": 346.75, "low": 338.80, "close": 345.98, "direction": "down", "extreme": 338.80, "body_color": "red",   "session": "rth"},
+    {"id": 7,  "ticker": "TSLA", "date": "2026-03-23", "time_et": "10:00", "open": 383.41, "high": 384.89, "low": 373.93, "close": 384.80, "direction": "down", "extreme": 373.93, "body_color": "green", "session": "rth"},
+    {"id": 8,  "ticker": "TSLA", "date": "2026-03-02", "time_et": "12:40", "open": 400.65, "high": 401.58, "low": 390.36, "close": 401.26, "direction": "down", "extreme": 390.36, "body_color": "green", "session": "rth"},
+    {"id": 9,  "ticker": "TSLA", "date": "2026-01-20", "time_et": "08:15", "open": 426.29, "high": 437.50, "low": 425.77, "close": 425.90, "direction": "up",   "extreme": 437.50, "body_color": "red",   "session": "pre"},
+    {"id": 10, "ticker": "TSLA", "date": "2026-01-20", "time_et": "07:00", "open": 428.00, "high": 436.41, "low": 427.50, "close": 427.50, "direction": "up",   "extreme": 436.41, "body_color": "red",   "session": "pre"},
+    {"id": 11, "ticker": "TSLA", "date": "2026-01-05", "time_et": "07:05", "open": 445.38, "high": 445.43, "low": 439.17, "close": 444.79, "direction": "down", "extreme": 439.17, "body_color": "red",   "session": "pre"},
+    {"id": 12, "ticker": "TSLA", "date": "2025-12-25", "time_et": "19:00", "open": 484.25, "high": 499.68, "low": 484.25, "close": 486.27, "direction": "up",   "extreme": 499.68, "body_color": "green", "session": "post"},
+    {"id": 13, "ticker": "TSLA", "date": "2025-12-22", "time_et": "07:00", "open": 487.60, "high": 487.84, "low": 480.00, "close": 487.69, "direction": "down", "extreme": 480.00, "body_color": "green", "session": "pre"},
+    {"id": 14, "ticker": "TSLA", "date": "2025-11-05", "time_et": "14:25", "open": 462.30, "high": 462.35, "low": 451.49, "close": 461.63, "direction": "down", "extreme": 451.49, "body_color": "red",   "session": "rth"}
+  ]
+}
