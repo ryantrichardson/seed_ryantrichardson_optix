@@ -1,0 +1,19 @@
+name: qqq_2_wicks
+on:
+  workflow_dispatch:
+jobs:
+  qqq2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests
+      - env: {MASSIVE_API_KEY: "${{ secrets.MASSIVE_API_KEY }}"}
+        run: python scripts/qqq_2_wicks_analyze.py | tee qqq_2_wicks_output.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qqq_2_wicks
+          path: qqq_2_wicks_output.txt

@@ -1,0 +1,6 @@
+{
+  "wicks": [
+    {"id": "A", "ticker": "QQQ", "date": "2025-11-20", "time_et": "07:00", "open": 610.28, "high": 610.88, "low": 600.32, "close": 610.63, "direction": "down", "extreme": 600.32, "body_color": "green", "session": "pre"},
+    {"id": "B", "ticker": "QQQ", "date": "2025-11-20", "time_et": "08:15", "open": 611.46, "high": 612.16, "low": 598.00, "close": 612.06, "direction": "down", "extreme": 598.00, "body_color": "green", "session": "pre"}
+  ]
+}
