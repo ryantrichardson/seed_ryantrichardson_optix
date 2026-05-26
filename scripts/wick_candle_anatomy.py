@@ -107,22 +107,52 @@ def main():
         block_notional = 0.0
         largest_print = None
         largest_size = 0
-        at_extreme_count = 0
-        at_extreme_size = 0
-        at_extreme_notional = 0.0
-        at_extreme_dark_size = 0
-        at_extreme_max_single = 0
+        in_wick_count = 0
+        in_wick_size = 0
+        in_wick_notional = 0.0
+        in_wick_dark_size = 0
+        in_wick_max_single = 0
+        at_tip_count = 0
+        at_tip_size = 0
+        at_tip_notional = 0.0
+        at_tip_dark_size = 0
+        at_tip_max_single = 0
+        at_tip_largest = None
         cond_counter = Counter()
         prices_weighted = []  # (price, size)
         venue_size = defaultdict(int)
         trf_size = defaultdict(int)
 
-        # "at-or-beyond extreme" tolerance: within 1 cent
-        def at_extreme(price):
+        # Body range
+        body_min = min(w["open"], w["close"])
+        body_max = max(w["open"], w["close"])
+
+        # Wick reach (the impossible portion):
+        #   down-wick: from body_min down to wick_low; a print is "in the wick" if price < body_min
+        #   up-wick:   from body_max up to wick_high; a print is "in the wick" if price > body_max
+        # AND "deep wick" = in the bottom (or top) 25% of that wick reach (the tip)
+        if direction == "down":
+            wick_top = body_min  # boundary where wick starts
+            wick_bot = w["low"]
+            tip_threshold = wick_bot + (wick_top - wick_bot) * 0.25  # bottom 25% of wick
+        else:
+            wick_bot = body_max
+            wick_top = w["high"]
+            tip_threshold = wick_top - (wick_top - wick_bot) * 0.25  # top 25% of wick
+
+        def in_wick(price):
+            """Print is anywhere in the wick (outside the body range)."""
             if direction == "down":
-                return price <= extreme + 0.01
+                return price < body_min
             else:
-                return price >= extreme - 0.01
+                return price > body_max
+
+        def at_tip(price):
+            """Print is in the deepest 25% of the wick (the 'impossible' tip)."""
+            if direction == "down":
+                return price <= tip_threshold
+            else:
+                return price >= tip_threshold
 
         for tr in trades:
             size = tr.get("size") or 0
@@ -162,15 +192,26 @@ def main():
                     "timestamp_ns": tr.get("sip_timestamp") or tr.get("participant_timestamp"),
                 }
 
-            # At or beyond wick extreme
-            if at_extreme(price):
-                at_extreme_count += 1
-                at_extreme_size += size
-                at_extreme_notional += notional
+            # Print anywhere in the wick (price outside body range, on wick side)
+            if in_wick(price):
+                in_wick_count += 1
+                in_wick_size += size
+                in_wick_notional += notional
                 if is_dark:
-                    at_extreme_dark_size += size
-                if size > at_extreme_max_single:
-                    at_extreme_max_single = size
+                    in_wick_dark_size += size
+                if size > in_wick_max_single:
+                    in_wick_max_single = size
+
+            # Print at the TIP (deepest 25% of the wick - the 'impossible' part)
+            if at_tip(price):
+                at_tip_count += 1
+                at_tip_size += size
+                at_tip_notional += notional
+                if is_dark:
+                    at_tip_dark_size += size
+                if size > at_tip_max_single:
+                    at_tip_max_single = size
+                    at_tip_largest = {"size": size, "price": price, "is_dark": is_dark, "conditions": tr.get("conditions") or [], "exchange": tr.get("exchange"), "trf_id": tr.get("trf_id")}
 
         # VWAP within candle
         vwap = (sum(p * s for p, s in prices_weighted) / sum(s for _, s in prices_weighted)) if prices_weighted else 0
@@ -206,16 +247,24 @@ def main():
             "largest_price": largest_print["price"] if largest_print else None,
             "largest_is_dark": largest_print["is_dark"] if largest_print else None,
             "largest_conds": ",".join(str(c) for c in largest_print["conditions"]) if largest_print else "",
-            "at_extreme_count": at_extreme_count,
-            "at_extreme_size": at_extreme_size,
-            "at_extreme_notional_K": round(at_extreme_notional / 1e3, 2),
-            "at_extreme_dark_size": at_extreme_dark_size,
-            "at_extreme_max_single": at_extreme_max_single,
+            "body_min": body_min,
+            "body_max": body_max,
+            "tip_threshold": round(tip_threshold, 4),
+            "in_wick_count": in_wick_count,
+            "in_wick_size": in_wick_size,
+            "in_wick_notional_K": round(in_wick_notional / 1e3, 2),
+            "in_wick_dark_size": in_wick_dark_size,
+            "in_wick_max_single": in_wick_max_single,
+            "at_tip_count": at_tip_count,
+            "at_tip_size": at_tip_size,
+            "at_tip_notional_K": round(at_tip_notional / 1e3, 2),
+            "at_tip_dark_size": at_tip_dark_size,
+            "at_tip_max_single": at_tip_max_single,
             "top_conditions": ";".join(f"{c}:{n}" for c, n in top_conds),
             "top_trf_ids": ";".join(f"{t}:{s}" for t, s in top_trf),
         }
         rows.append(row)
-        details.append({**row, "_largest_print_full": largest_print})
+        details.append({**row, "_largest_print_full": largest_print, "_at_tip_largest": at_tip_largest})
 
         time.sleep(0.15)  # gentle rate-limit
 
@@ -233,13 +282,14 @@ def main():
 
     # Print summary table to stdout
     print("\n=== CANDLE ANATOMY SUMMARY ===")
-    print(f"{'ID':>3} {'Date':10} {'Time':5} {'Dir':4} {'Color':5} {'Sess':4} {'Trades':>7} {'Vol':>10} {'Vol/Med':>8} {'$M':>7} {'DPR%':>6} {'Blocks':>6} {'BlockM':>7} {'MaxPrt':>7} {'MaxDk':>6} {'@Ext#':>6} {'@ExtSz':>7} {'@ExtMax':>8}")
+    print(f"{'ID':>3} {'Date':10} {'Time':5} {'Dir':4} {'Color':5} {'Sess':4} {'Trades':>7} {'Vol':>10} {'V/Med':>6} {'$M':>7} {'DPR%':>6} {'Blk':>4} {'BlkM':>6} {'MaxPrt':>7} {'InWk#':>6} {'InWkSz':>7} {'InWkDk':>7} {'TipSz':>7} {'TipDk':>6} {'TipMax':>7}")
     for r in rows:
         print(f"{r['id']:>3} {r['date']:10} {r['time_et']:5} {r['direction']:<4} {r['body_color']:<5} {r['session']:<4} "
-              f"{r['trades_count']:>7,} {r['total_size']:>10,} {(r['vol_vs_median_rth_x'] or 0):>8.2f} "
-              f"{r['total_notional_M']:>7.2f} {r['dpr_pct']:>6.1f} {r['block_count']:>6} {r['block_notional_M']:>7.2f} "
-              f"{r['largest_size']:>7,} {str(r['largest_is_dark'])[:5]:>6} "
-              f"{r['at_extreme_count']:>6} {r['at_extreme_size']:>7,} {r['at_extreme_max_single']:>8,}")
+              f"{r['trades_count']:>7,} {r['total_size']:>10,} {(r['vol_vs_median_rth_x'] or 0):>6.2f} "
+              f"{r['total_notional_M']:>7.2f} {r['dpr_pct']:>6.1f} {r['block_count']:>4} {r['block_notional_M']:>6.2f} "
+              f"{r['largest_size']:>7,} "
+              f"{r['in_wick_count']:>6} {r['in_wick_size']:>7,} {r['in_wick_dark_size']:>7,} "
+              f"{r['at_tip_size']:>7,} {r['at_tip_dark_size']:>6,} {r['at_tip_max_single']:>7,}")
 
 
 if __name__ == "__main__":
