@@ -165,8 +165,8 @@ def enrich_wick(w: dict) -> dict:
     sv_day, sv_base = fetch_short_volume(ticker, date)
     sv_summary = None
     if sv_day:
-        sv = sv_day.get("short_volume") or 0
-        ratio = sv_day.get("short_volume_ratio") or 0
+        sv = int(sv_day.get("short_volume") or 0)
+        ratio = float(sv_day.get("short_volume_ratio") or 0)
         sv_summary = {
             "date": sv_day.get("date"),
             "short_volume": sv,
@@ -180,9 +180,11 @@ def enrich_wick(w: dict) -> dict:
                 sv_summary["short_vol_zscore_simple"] = round(
                     sv / sv_base["avg_short_volume"], 2
                 )
-        print(f"  short_vol day={sv:,d} ratio={ratio:.2f}%  "
-              f"vs 20d_avg={int(sv_base['avg_short_volume']):,d}" if sv_base
-              else f"  short_vol day={sv:,d} ratio={ratio:.2f}%  (no baseline)")
+        if sv_base:
+            print(f"  short_vol day={sv:,d} ratio={ratio:.2f}%  "
+                  f"vs 20d_avg={int(sv_base['avg_short_volume']):,d}")
+        else:
+            print(f"  short_vol day={sv:,d} ratio={ratio:.2f}%  (no baseline)")
     else:
         print("  short_vol: no data")
 
