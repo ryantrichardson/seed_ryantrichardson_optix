@@ -30,9 +30,9 @@ API_KEY = os.environ["MASSIVE_API_KEY"]
 BASE = "https://api.massive.com"
 ET = timezone(timedelta(hours=-4))
 
-PILOT_FILE = Path("data/pilot_block_classifier.json")
-OUT_CSV = Path("data/pilot_enriched.csv")
-OUT_JSON = Path("data/pilot_enriched.json")
+PILOT_FILE = Path(os.environ.get("PILOT_FILE", "data/pilot_block_classifier.json"))
+OUT_CSV = Path(os.environ.get("OUT_CSV", "data/pilot_enriched.csv"))
+OUT_JSON = Path(os.environ.get("OUT_JSON", "data/pilot_enriched.json"))
 
 
 def get(path, params=None):

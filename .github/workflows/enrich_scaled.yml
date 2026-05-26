@@ -1,0 +1,27 @@
+name: enrich_scaled
+on:
+  workflow_dispatch:
+
+jobs:
+  enrich:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - name: Run scaled enrichment
+        env:
+          MASSIVE_API_KEY: ${{ secrets.MASSIVE_API_KEY }}
+          PILOT_FILE: data/all_wicks_for_enrichment.json
+          OUT_CSV: data/all_wicks_enriched.csv
+          OUT_JSON: data/all_wicks_enriched.json
+        run: python scripts/enrich_pilot.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: all_wicks_enriched
+          path: |
+            data/all_wicks_enriched.csv
+            data/all_wicks_enriched.json
