@@ -54,16 +54,35 @@ def fetch_trades(ticker, s_ns, e_ns):
     url = f"{BASE}/v3/trades/{ticker}"
     params = {"timestamp.gte": s_ns, "timestamp.lt": e_ns, "limit": 50000, "order": "asc"}
     out, pages = [], 0
-    while url and pages < 200:
-        r = S.get(url, params=params if pages == 0 else None, timeout=120)
-        if r.status_code != 200:
-            print(f"  ! trades HTTP {r.status_code}: {r.text[:200]}")
-            break
-        j = r.json()
-        out.extend(j.get("results", []))
-        url = j.get("next_url")
-        params = None
-        pages += 1
+    while url and pages < 400:
+        # Retry transient network failures (ChunkedEncodingError, timeouts, 5xx)
+        last_err = None
+        for attempt in range(6):
+            try:
+                r = S.get(url, params=params if pages == 0 else None, timeout=180)
+                if r.status_code == 200:
+                    j = r.json()
+                    out.extend(j.get("results", []))
+                    url = j.get("next_url")
+                    params = None
+                    pages += 1
+                    last_err = None
+                    break
+                if r.status_code >= 500 or r.status_code == 429:
+                    last_err = f"HTTP {r.status_code}"
+                    time.sleep(2 ** attempt)
+                    continue
+                print(f"  ! trades HTTP {r.status_code}: {r.text[:200]}")
+                return out
+            except (requests.exceptions.ChunkedEncodingError,
+                    requests.exceptions.ConnectionError,
+                    requests.exceptions.Timeout) as e:
+                last_err = str(e)[:120]
+                time.sleep(2 ** attempt)
+                continue
+        else:
+            print(f"  ! gave up after retries on page {pages}: {last_err}")
+            return out
     return out
 
 
