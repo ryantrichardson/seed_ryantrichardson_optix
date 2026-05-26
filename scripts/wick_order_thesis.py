@@ -66,7 +66,14 @@ def main():
 
         # Try participant_timestamp first
         trades = fetch_trades(w["ticker"], s_ns, e_ns, ts_field="timestamp")
-        # If the API doesn't honor that field, fall back; check if response looks normal
+        # Defensive: if API ignored params and returned junk (different ticker/options bleed),
+        # detect by absurd low price for TSLA
+        if trades:
+            sample = [t.get("price") for t in trades[:50] if t.get("price")]
+            if sample and max(sample) < 100:
+                print(f"  ! response looks wrong (max sample price {max(sample)}) — skipping")
+                trades = []
+        # If empty, try participant_timestamp explicit field
         if not trades:
             trades = fetch_trades(w["ticker"], s_ns, e_ns, ts_field="participant_timestamp")
 
