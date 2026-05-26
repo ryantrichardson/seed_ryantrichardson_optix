@@ -1,0 +1,24 @@
+name: wick_candle_anatomy
+on:
+  workflow_dispatch:
+
+jobs:
+  anatomy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - name: Analyze candle interiors
+        env:
+          MASSIVE_API_KEY: ${{ secrets.MASSIVE_API_KEY }}
+        run: python scripts/wick_candle_anatomy.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wick_candle_anatomy
+          path: |
+            data/wick_candle_anatomy.csv
+            data/wick_candle_anatomy.json
