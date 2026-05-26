@@ -21,7 +21,7 @@ S.headers.update({"Authorization": f"Bearer {API}"})
 TICKER = "SPY"
 START = datetime(2026, 1, 1).date()
 END = datetime(2026, 1, 31).date()
-WICK_MIN = 0.7
+WICK_MIN = 0.5
 WICK_MAX = 5.0
 EXT_PRINT_MAX = 20
 TOL = 0.05
