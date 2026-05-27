@@ -1,8 +1,17 @@
-"""Probe Massive's S3 flatfiles bucket - round 2.
+"""Probe one day of us_stocks_sip/trades_v1 to verify it has the fields we need.
 
-Drill into us_options_opra subfeeds to see exact file structure.
+Need to confirm:
+- conditions column (cond 7/22/32/53 for GHOST detection)
+- trf_id column (dark pool indicator)
+- exchange column (FINRA = 4)
+- sip_timestamp AND participant_timestamp (need both for lag)
+- file size per day
+- size after filtering to QQQ + SPY only
 """
 import os
+import gzip
+import io
+import time
 import boto3
 from botocore.config import Config
 
@@ -19,77 +28,121 @@ s3 = boto3.client(
     config=Config(signature_version="s3v4"),
 )
 
-def drill(prefix, depth=0, max_depth=5):
-    """Recursively list sub-prefixes until we hit actual files."""
-    indent = "  " * depth
-    resp = s3.list_objects_v2(Bucket=BUCKET, Prefix=prefix, Delimiter="/", MaxKeys=20)
-    subs = [p["Prefix"] for p in resp.get("CommonPrefixes", [])]
-    files = resp.get("Contents", [])
+KEY = "us_stocks_sip/trades_v1/2025/12/2025-12-01.csv.gz"
 
-    if files and not subs:
-        # Leaf - show files
-        print(f"{indent}{prefix} has {len(files)}+ files (showing 5):")
-        for obj in files[:5]:
-            size_mb = obj["Size"] / 1024 / 1024
-            print(f"{indent}  {obj['Key']}  ({size_mb:.1f} MB)")
-        return
+print(f"=== Probing {KEY} ===\n")
 
-    if subs:
-        print(f"{indent}{prefix}")
-        for s in subs[:10]:
-            if depth < max_depth:
-                drill(s, depth + 1, max_depth)
-            else:
-                print(f"{indent}  {s}")
+# 1) Get file size
+head = s3.head_object(Bucket=BUCKET, Key=KEY)
+size_mb = head["ContentLength"] / 1024 / 1024
+print(f"Compressed file size: {size_mb:.1f} MB ({head['ContentLength']:,} bytes)")
+print(f"Last modified: {head['LastModified']}\n")
 
-print(f"=== Drilling into us_options_opra subfeeds ===\n")
+# 2) Stream-download just the first ~50 MB to see headers and sample rows
+print("Downloading first 50 MB to inspect header + sample rows...")
+t0 = time.time()
+resp = s3.get_object(Bucket=BUCKET, Key=KEY, Range="bytes=0-52428800")
+raw = resp["Body"].read()
+print(f"  Got {len(raw)/1024/1024:.1f} MB in {time.time()-t0:.1f}s")
 
-# Walk minute_aggs (priority for backtest)
-print("--- minute_aggs_v1 structure ---")
-drill("us_options_opra/minute_aggs_v1/")
+# 3) Decompress what we can (partial gzip stream)
+print("\nDecompressing partial stream...")
+try:
+    # Try full decompress first - might fail on partial gzip
+    decompressed = gzip.decompress(raw)
+except Exception as e:
+    # Use streaming decompressor that tolerates truncation
+    print(f"  Full decompress failed ({e}), using streaming...")
+    dec = gzip.GzipFile(fileobj=io.BytesIO(raw))
+    chunks = []
+    try:
+        while True:
+            chunk = dec.read(1024 * 1024)
+            if not chunk:
+                break
+            chunks.append(chunk)
+    except (EOFError, OSError) as e:
+        print(f"  Streaming stopped at: {e}")
+    decompressed = b"".join(chunks)
 
-print("\n--- quotes_v1 structure ---")
-drill("us_options_opra/quotes_v1/")
+text = decompressed.decode("utf-8", errors="replace")
+print(f"  Decompressed: {len(text)/1024/1024:.1f} MB text")
 
-print("\n--- day_aggs_v1 structure ---")
-drill("us_options_opra/day_aggs_v1/")
+# 4) Show header + first 5 rows
+lines = text.split("\n")
+print(f"\n--- Header ---")
+print(lines[0])
+print(f"\n--- First 5 data rows ---")
+for line in lines[1:6]:
+    print(line)
 
-# Now sample sizes for Dec 2025 minute_aggs
-print("\n--- Dec 2025 minute_aggs file sizes ---")
-for prefix_try in [
-    "us_options_opra/minute_aggs_v1/2025/12/",
-    "us_options_opra/minute_aggs_v1/2025-12/",
-    "us_options_opra/minute_aggs_v1/2025/",
-]:
-    resp = s3.list_objects_v2(Bucket=BUCKET, Prefix=prefix_try, MaxKeys=50)
-    contents = resp.get("Contents", [])
-    if contents:
-        sizes = [obj["Size"] for obj in contents]
-        print(f"  Prefix: {prefix_try}")
-        print(f"    Found {len(sizes)} files")
-        print(f"    Avg: {sum(sizes)/len(sizes)/1024/1024:.1f} MB")
-        print(f"    Total: {sum(sizes)/1024**3:.2f} GB")
-        print(f"    First 3 keys:")
-        for obj in contents[:3]:
-            print(f"      {obj['Key']}")
+# 5) Show column names parsed
+header_cols = lines[0].split(",")
+print(f"\n--- Columns ({len(header_cols)}) ---")
+for i, c in enumerate(header_cols):
+    print(f"  [{i}] {c}")
+
+# 6) Check for key fields we need
+needed = {
+    "conditions": ["conditions", "condition", "cond"],
+    "trf_id": ["trf_id", "trf", "trf_timestamp"],
+    "exchange": ["exchange", "exch"],
+    "sip_timestamp": ["sip_timestamp", "sip"],
+    "participant_timestamp": ["participant_timestamp", "participant"],
+    "price": ["price"],
+    "size": ["size", "volume"],
+    "ticker": ["ticker", "symbol"],
+}
+print(f"\n--- Field check ---")
+header_lower = [c.lower().strip() for c in header_cols]
+for need, candidates in needed.items():
+    found = [c for c in header_lower if any(cand in c for cand in candidates)]
+    status = "✓" if found else "✗"
+    print(f"  {status} {need}: {found if found else 'NOT FOUND'}")
+
+# 7) Filter to QQQ + SPY rows in this 50MB sample, see ratio
+print(f"\n--- QQQ + SPY row sampling ---")
+# Find ticker column index
+ticker_idx = None
+for i, c in enumerate(header_lower):
+    if c.strip() in ("ticker", "symbol"):
+        ticker_idx = i
         break
 
-print("\n--- Dec 2025 quotes_v1 file sizes (sample) ---")
-for prefix_try in [
-    "us_options_opra/quotes_v1/2025/12/",
-    "us_options_opra/quotes_v1/2025-12/",
-    "us_options_opra/quotes_v1/2025/",
-]:
-    resp = s3.list_objects_v2(Bucket=BUCKET, Prefix=prefix_try, MaxKeys=10)
-    contents = resp.get("Contents", [])
-    if contents:
-        sizes = [obj["Size"] for obj in contents]
-        print(f"  Prefix: {prefix_try}")
-        print(f"    Sample {len(sizes)} files")
-        print(f"    Avg: {sum(sizes)/len(sizes)/1024/1024:.1f} MB")
-        for obj in contents[:3]:
-            size_mb = obj["Size"] / 1024 / 1024
-            print(f"      {obj['Key']}  ({size_mb:.1f} MB)")
-        break
+if ticker_idx is not None:
+    total_rows = 0
+    qqq_rows = 0
+    spy_rows = 0
+    qqq_sample = None
+    spy_sample = None
+    for line in lines[1:]:
+        if not line:
+            continue
+        total_rows += 1
+        cols = line.split(",")
+        if len(cols) <= ticker_idx:
+            continue
+        t = cols[ticker_idx].strip().strip('"')
+        if t == "QQQ":
+            qqq_rows += 1
+            if not qqq_sample:
+                qqq_sample = line
+        elif t == "SPY":
+            spy_rows += 1
+            if not spy_sample:
+                spy_sample = line
+    print(f"  Sample rows scanned: {total_rows:,}")
+    print(f"  QQQ rows: {qqq_rows:,}")
+    print(f"  SPY rows: {spy_rows:,}")
+    if total_rows > 0:
+        ratio = (qqq_rows + spy_rows) / total_rows
+        print(f"  QQQ+SPY share: {ratio*100:.2f}%")
+        print(f"  Projected QQQ+SPY size for full day: {size_mb * ratio:.1f} MB")
+    if qqq_sample:
+        print(f"\n  Sample QQQ row:\n    {qqq_sample}")
+    if spy_sample:
+        print(f"\n  Sample SPY row:\n    {spy_sample}")
+else:
+    print("  Could not find ticker column to filter")
 
-print("\n=== PROBE 2 COMPLETE ===")
+print("\n=== PROBE COMPLETE ===")
