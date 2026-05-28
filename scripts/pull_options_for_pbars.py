@@ -105,14 +105,17 @@ def load_pbars():
     return pbars
 
 
-def find_atm_contract(ticker, underlying_px, target_exp, opt_type):
+def find_atm_contract(ticker, underlying_px, target_exp, opt_type, entry_date):
     """Use Massive API to list contracts for ticker on target_exp, pick the strike
-    closest to underlying_px. opt_type is 'call' or 'put'."""
+    closest to underlying_px. opt_type is 'call' or 'put'.
+    Passes expired=true and as_of=<entry_date> so historical/expired contracts are returned."""
     url = f"{BASE}/v3/reference/options/contracts"
     params = {
         "underlying_ticker": ticker,
         "expiration_date": target_exp.isoformat(),
         "contract_type": opt_type,
+        "expired": "true",
+        "as_of": entry_date.isoformat(),
         "limit": 100,
     }
     r = session.get(url, params=params, timeout=30)
@@ -250,7 +253,7 @@ def main():
 
         # Find ATM contract
         try:
-            contract, actual_exp = find_atm_contract(ticker, underlying_px, target_exp, opt_type)
+            contract, actual_exp = find_atm_contract(ticker, underlying_px, target_exp, opt_type, entry_dt.date())
         except Exception as e:
             print(f"  [{i}/{len(pbars)}] {ticker} {p['date']} {p['time_et']} | "
                   f"ERROR finding contract: {e}")
