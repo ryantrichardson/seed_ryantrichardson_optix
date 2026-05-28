@@ -115,7 +115,6 @@ def find_atm_contract(ticker, underlying_px, target_exp, opt_type, entry_date):
         "expiration_date": target_exp.isoformat(),
         "contract_type": opt_type,
         "expired": "true",
-        "as_of": entry_date.isoformat(),
         "limit": 100,
     }
     r = session.get(url, params=params, timeout=30)
