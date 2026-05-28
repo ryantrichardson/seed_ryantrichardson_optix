@@ -232,10 +232,10 @@ def main():
         elif entry_dt.hour == 9 and entry_dt.minute < 30:
             entry_dt = entry_dt.replace(hour=9, minute=30)
 
-        # Strategy: fade the wick
-        # Down wick (price spiked low then closed higher) -> expect bounce up -> buy CALL
-        # Up wick (price spiked high then closed lower) -> expect drop -> buy PUT
-        opt_type = "call" if p["direction"] == "down" else "put"
+        # Strategy: ride the wick (PBAR thesis — the wick predicts where price will go)
+        # Down wick (price spiked low) -> expect price to return to that low -> buy PUT
+        # Up wick (price spiked high) -> expect price to return to that high -> buy CALL
+        opt_type = "put" if p["direction"] == "down" else "call"
 
         target_exp = find_target_expiration(entry_dt.date(), DTE_TARGET)
 
