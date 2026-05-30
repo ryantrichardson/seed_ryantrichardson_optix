@@ -1,0 +1,47 @@
+name: scan_spy_extension
+on: workflow_dispatch
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Download all 8 spy_extend_v2 artifacts
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 26667798158
+          path: /tmp/artifacts
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Inspect artifact tree
+        run: |
+          echo "=== /tmp/artifacts ==="
+          find /tmp/artifacts -maxdepth 3 -type f | head -50
+          echo ""
+          echo "=== Sizes ==="
+          du -sh /tmp/artifacts/*/
+
+      - name: Run PBAR scanner on extension data
+        run: python -u scripts/pbar_scanner_extension.py
+
+      - name: Commit the new PBAR CSV back to the repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/pbar_spy_may_nov2024.csv
+          git commit -m "Add SPY May-Nov 2024 PBAR scan results" || echo "Nothing to commit"
+          git push origin main
+
+      - name: Upload scan output as artifact (backup)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: scan_spy_extension_output
+          path: data/pbar_spy_may_nov2024.csv
