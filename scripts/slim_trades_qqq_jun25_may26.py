@@ -24,7 +24,7 @@ ENDPOINT = "https://files.massive.com"
 BUCKET = "flatfiles"
 TICKERS = {"QQQ"}
 
-PER_DAY_TIMEOUT_SEC = 8 * 60
+PER_DAY_TIMEOUT_SEC = 18 * 60  # bumped from 8min — 2025-2026 daily files are ~100M trades vs 60-80M in 2024
 
 s3 = boto3.client(
     "s3", endpoint_url=ENDPOINT,
