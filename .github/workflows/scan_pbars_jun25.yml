@@ -3,7 +3,7 @@ on: workflow_dispatch
 jobs:
   scan_pbars:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
     strategy:
       matrix:
         ticker: [SPY, QQQ]
@@ -19,7 +19,7 @@ jobs:
           path: /tmp/artifacts
           pattern: ${{ matrix.ticker == 'SPY' && 'spy_jun25_shard*' || 'qqq_jun25_shard*' }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ matrix.ticker == 'SPY' && '26722007656' || '26722008297' }}
+          run-id: ${{ matrix.ticker == 'SPY' && '26724820712' || '26724821254' }}
       - run: ls -la /tmp/artifacts/ && find /tmp/artifacts -name "*.csv.gz" | head
       - env:
           TICKER: ${{ matrix.ticker }}
