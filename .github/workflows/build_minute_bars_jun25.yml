@@ -1,0 +1,42 @@
+name: build_minute_bars_jun25
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  build_bars:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      matrix:
+        ticker: [SPY, QQQ]
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download slim trade shards for ${{ matrix.ticker }}
+        uses: actions/download-artifact@v4
+        with:
+          path: /tmp/artifacts
+          pattern: ${{ matrix.ticker == 'SPY' && 'spy_jun25_shard*' || 'qqq_jun25_shard*' }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ matrix.ticker == 'SPY' && '26724820712' || '26724821254' }}
+      - run: find /tmp/artifacts -name "*.csv.gz" | head
+      - env:
+          TICKER: ${{ matrix.ticker }}
+        run: python -u scripts/build_minute_bars_jun25.py
+      - name: Upload pkl as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: minute_bars_${{ matrix.ticker }}_jun25
+          path: data/minute_bars/${{ matrix.ticker == 'SPY' && 'spy' || 'qqq' }}_1min_jun25_may26.pkl
+      - name: Commit pkl
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/minute_bars/${{ matrix.ticker == 'SPY' && 'spy' || 'qqq' }}_1min_jun25_may26.pkl
+          git commit -m "1-min bars ${{ matrix.ticker }} Jun 2025 - May 2026" || echo "nothing"
+          git pull --rebase || true
+          git push || true
