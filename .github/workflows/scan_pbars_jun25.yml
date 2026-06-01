@@ -1,5 +1,7 @@
 name: scan_pbars_jun25
 on: workflow_dispatch
+permissions:
+  contents: write
 jobs:
   scan_pbars:
     runs-on: ubuntu-latest
@@ -24,6 +26,12 @@ jobs:
       - env:
           TICKER: ${{ matrix.ticker }}
         run: python -u scripts/pbar_scanner_jun25.py
+      - name: Upload result CSV as artifact (belt + suspenders)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pbar_scan_${{ matrix.ticker }}_jun25
+          path: data/pbar_results/pbar_${{ matrix.ticker == 'SPY' && 'spy' || 'qqq' }}_jun25_may26.csv
       - name: Commit results
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
