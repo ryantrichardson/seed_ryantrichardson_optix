@@ -1,20 +1,20 @@
 {
   "ticker": "PYPL",
-  "rows_written": 249,
+  "rows_written": 251,
   "latest_row": {
-    "date": "2026-05-27",
+    "date": "2026-06-01",
     "ticker": "PYPL",
-    "total_volume": 4722582.54,
-    "short_volume": 2292246.05,
-    "short_volume_ratio": 48.54,
-    "carteret_pct_of_short": 94.9893,
-    "nyse_short_volume": 90843,
-    "nasdaq_carteret_short_volume": 2177389,
-    "nasdaq_chicago_short_volume": 24013,
+    "total_volume": 5314982.05,
+    "short_volume": 2466696.75,
+    "short_volume_ratio": 46.41,
+    "carteret_pct_of_short": 95.5324,
+    "nyse_short_volume": 76727,
+    "nasdaq_carteret_short_volume": 2356494,
+    "nasdaq_chicago_short_volume": 33475,
     "adf_short_volume": 0,
-    "exempt_volume": 6628.0,
-    "svr_sma20": 36.8635,
-    "svr_zscore60": 1.8692
+    "exempt_volume": 10090.0,
+    "svr_sma20": 37.9815,
+    "svr_zscore60": 1.5584
   },
   "how_to_read": {
     "short_volume_ratio": "Daily % of total volume sold short. 50% is typical.",
