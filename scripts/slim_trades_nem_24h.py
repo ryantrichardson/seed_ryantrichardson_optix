@@ -6,6 +6,7 @@ import os, gzip, io, time, csv, signal
 from datetime import date
 import boto3
 from botocore.config import Config
+from botocore.exceptions import ClientError
 
 ACCESS_KEY = os.environ["MASSIVE_S3_ACCESS_KEY_ID"]
 SECRET_KEY = os.environ["MASSIVE_S3_SECRET_KEY"]
@@ -46,6 +47,10 @@ with gzip.open(OUT_PATH, "wt", encoding="utf-8", newline="") as out_f:
                 obj = s3.get_object(Bucket=BUCKET, Key=key)
             except s3.exceptions.NoSuchKey:
                 print(f"  NO KEY for {d}")
+                continue
+            except ClientError as e:
+                code = e.response.get('Error', {}).get('Code')
+                print(f"  {d} ClientError {code} (likely not yet published) — skipping")
                 continue
             body = obj["Body"]
             gz = gzip.GzipFile(fileobj=body)
