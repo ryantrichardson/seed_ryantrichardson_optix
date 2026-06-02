@@ -15,7 +15,7 @@ ENDPOINT = "https://files.massive.com"
 BUCKET = "flatfiles"
 TICKERS = {"NEM"}
 DAYS = [date(2026, 6, 1), date(2026, 6, 2)]
-PER_DAY_TIMEOUT_SEC = 30 * 60
+PER_DAY_TIMEOUT_SEC = 50 * 60
 
 s3 = boto3.client(
     "s3", endpoint_url=ENDPOINT,
