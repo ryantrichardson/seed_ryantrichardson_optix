@@ -1,20 +1,20 @@
 {
   "ticker": "SHOP",
-  "rows_written": 251,
+  "rows_written": 252,
   "latest_row": {
-    "date": "2026-07-13",
+    "date": "2026-07-14",
     "ticker": "SHOP",
-    "total_volume": 2568543.06,
-    "short_volume": 1264993.75,
-    "short_volume_ratio": 49.25,
-    "carteret_pct_of_short": 95.0517,
-    "nyse_short_volume": 52817,
-    "nasdaq_carteret_short_volume": 1202398,
-    "nasdaq_chicago_short_volume": 9778,
+    "total_volume": 1651515.31,
+    "short_volume": 698961.39,
+    "short_volume_ratio": 42.32,
+    "carteret_pct_of_short": 96.0602,
+    "nyse_short_volume": 23319,
+    "nasdaq_carteret_short_volume": 671424,
+    "nasdaq_chicago_short_volume": 4218,
     "adf_short_volume": 0,
-    "exempt_volume": 10625.0,
-    "svr_sma20": 37.8145,
-    "svr_zscore60": 1.059
+    "exempt_volume": 42.0,
+    "svr_sma20": 37.673,
+    "svr_zscore60": 0.3208
   },
   "how_to_read": {
     "short_volume_ratio": "Daily % of total volume sold short. 50% is typical.",
