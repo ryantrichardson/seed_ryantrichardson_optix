@@ -1,20 +1,20 @@
 {
   "ticker": "AMD",
-  "rows_written": 252,
+  "rows_written": 251,
   "latest_row": {
-    "date": "2026-08-07",
+    "date": "2026-08-10",
     "ticker": "AMD",
-    "total_volume": 11658088.81,
-    "short_volume": 5224872.63,
-    "short_volume_ratio": 44.82,
-    "carteret_pct_of_short": 94.1184,
-    "nyse_short_volume": 190718,
-    "nasdaq_carteret_short_volume": 4917568,
-    "nasdaq_chicago_short_volume": 116585,
+    "total_volume": 8692581.17,
+    "short_volume": 4069676.44,
+    "short_volume_ratio": 46.82,
+    "carteret_pct_of_short": 94.9578,
+    "nyse_short_volume": 132057,
+    "nasdaq_carteret_short_volume": 3864477,
+    "nasdaq_chicago_short_volume": 73141,
     "adf_short_volume": 0,
-    "exempt_volume": 10360.0,
-    "svr_sma20": 49.0365,
-    "svr_zscore60": -0.5489
+    "exempt_volume": 20386.0,
+    "svr_sma20": 48.9705,
+    "svr_zscore60": -0.2156
   },
   "how_to_read": {
     "short_volume_ratio": "Daily % of total volume sold short. 50% is typical.",

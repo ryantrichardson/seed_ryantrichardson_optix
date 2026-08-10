@@ -1,20 +1,20 @@
 {
   "ticker": "SOXL",
-  "rows_written": 252,
+  "rows_written": 251,
   "latest_row": {
-    "date": "2026-08-07",
+    "date": "2026-08-10",
     "ticker": "SOXL",
-    "total_volume": 22392537.59,
-    "short_volume": 12615662.92,
-    "short_volume_ratio": 56.34,
-    "carteret_pct_of_short": 94.4606,
-    "nyse_short_volume": 396284,
-    "nasdaq_carteret_short_volume": 11916829,
-    "nasdaq_chicago_short_volume": 302548,
+    "total_volume": 16744913.76,
+    "short_volume": 9311092.18,
+    "short_volume_ratio": 55.61,
+    "carteret_pct_of_short": 94.55,
+    "nyse_short_volume": 228693,
+    "nasdaq_carteret_short_volume": 8803639,
+    "nasdaq_chicago_short_volume": 278758,
     "adf_short_volume": 0,
-    "exempt_volume": 67484.0,
-    "svr_sma20": 59.1945,
-    "svr_zscore60": -0.1622
+    "exempt_volume": 46877.0,
+    "svr_sma20": 58.653,
+    "svr_zscore60": -0.3009
   },
   "how_to_read": {
     "short_volume_ratio": "Daily % of total volume sold short. 50% is typical.",
