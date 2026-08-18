@@ -1,20 +1,20 @@
 {
   "ticker": "SLV",
-  "rows_written": 251,
+  "rows_written": 252,
   "latest_row": {
-    "date": "2026-08-17",
+    "date": "2026-08-18",
     "ticker": "SLV",
-    "total_volume": 4696061.15,
-    "short_volume": 2429795.0,
-    "short_volume_ratio": 51.74,
-    "carteret_pct_of_short": 94.4869,
-    "nyse_short_volume": 103979,
-    "nasdaq_carteret_short_volume": 2295837,
-    "nasdaq_chicago_short_volume": 29978,
+    "total_volume": 4739327.35,
+    "short_volume": 2117739.41,
+    "short_volume_ratio": 44.68,
+    "carteret_pct_of_short": 90.5151,
+    "nyse_short_volume": 109011,
+    "nasdaq_carteret_short_volume": 1916875,
+    "nasdaq_chicago_short_volume": 91852,
     "adf_short_volume": 0,
-    "exempt_volume": 5709.0,
-    "svr_sma20": 54.3415,
-    "svr_zscore60": -0.1305
+    "exempt_volume": 12650.0,
+    "svr_sma20": 54.038,
+    "svr_zscore60": -1.1602
   },
   "how_to_read": {
     "short_volume_ratio": "Daily % of total volume sold short. 50% is typical.",
