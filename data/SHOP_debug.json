@@ -1,7 +1,7 @@
 {
   "ticker": "SHOP",
-  "rows_written": 501,
-  "historical_options_days_found": 117,
+  "rows_written": 500,
+  "historical_options_days_found": 121,
   "latest_row": {
     "date": "2026-08-27",
     "ticker": "SHOP",
@@ -11,10 +11,10 @@
     "avg_daily_volume": 13758159.0,
     "days_to_cover": 1.12,
     "short_volume_ratio": 51.86,
-    "call_volume": 1124.0,
-    "put_volume": 101.0,
-    "put_call_volume_ratio": 0.0898576512455516,
-    "total_options_volume": 1225.0,
+    "call_volume": 125.0,
+    "put_volume": 0.0,
+    "put_call_volume_ratio": 0.0,
+    "total_options_volume": 125.0,
     "rsi14": 53.18118948824345,
     "stoch20": 89.88439306358384,
     "dist_ma20": 0.057670561628345274,
@@ -24,10 +24,10 @@
     "roc20": 0.2608660130718954,
     "ma50_slope": 0.12193984047773743,
     "price_exhaustion_score": 78.18703055859174,
-    "options_fear_greed_score": 7.720338983050845,
+    "options_fear_greed_score": 2.203389830508475,
     "short_pressure_score": 36.55555555555556,
     "trend_score": 65.0,
-    "optix": 46.619615728767414
+    "optix": 44.688683525377584
   },
   "interpretation": {
     "0_to_20": "oversold / possible buy zone",
