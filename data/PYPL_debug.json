@@ -1,7 +1,7 @@
 {
   "ticker": "PYPL",
   "rows_written": 500,
-  "historical_options_days_found": 123,
+  "historical_options_days_found": 122,
   "latest_row": {
     "date": "2026-09-04",
     "ticker": "PYPL",
@@ -11,10 +11,10 @@
     "avg_daily_volume": 9285186.0,
     "days_to_cover": 3.63,
     "short_volume_ratio": 43.3,
-    "call_volume": 2135.0,
-    "put_volume": 0.0,
-    "put_call_volume_ratio": 0.0,
-    "total_options_volume": 2135.0,
+    "call_volume": 78.0,
+    "put_volume": 72.0,
+    "put_call_volume_ratio": 0.9230769230769231,
+    "total_options_volume": 150.0,
     "rsi14": 35.893497183819775,
     "stoch20": 25.858585858585887,
     "dist_ma20": -0.06683362692870931,
@@ -24,10 +24,10 @@
     "roc20": -0.06957846622651087,
     "ma50_slope": 0.13466892128760866,
     "price_exhaustion_score": 28.414211236791886,
-    "options_fear_greed_score": 1.1666666666666672,
+    "options_fear_greed_score": 20.833333333333336,
     "short_pressure_score": 42.05555555555556,
     "trend_score": 65.0,
-    "optix": 22.753061723223016
+    "optix": 29.63639505655635
   },
   "interpretation": {
     "0_to_20": "oversold / possible buy zone",

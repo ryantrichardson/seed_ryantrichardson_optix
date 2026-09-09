@@ -1,7 +1,7 @@
 {
   "ticker": "SLV",
   "rows_written": 500,
-  "historical_options_days_found": 96,
+  "historical_options_days_found": 122,
   "latest_row": {
     "date": "2026-09-04",
     "ticker": "SLV",
@@ -11,10 +11,10 @@
     "avg_daily_volume": 15704925.0,
     "days_to_cover": 1.38,
     "short_volume_ratio": 54.71,
-    "call_volume": 364.0,
-    "put_volume": 80.0,
-    "put_call_volume_ratio": 0.21978021978021978,
-    "total_options_volume": 444.0,
+    "call_volume": 130.0,
+    "put_volume": 2257.0,
+    "put_call_volume_ratio": 17.361538461538462,
+    "total_options_volume": 2387.0,
     "rsi14": 50.67971723762915,
     "stoch20": 44.652908067542214,
     "dist_ma20": -0.004203254400932055,
@@ -24,10 +24,10 @@
     "roc20": 0.04034782608695653,
     "ma50_slope": -0.011221474045486124,
     "price_exhaustion_score": 59.110934104070616,
-    "options_fear_greed_score": 36.57328605200946,
+    "options_fear_greed_score": 11.754385964912279,
     "short_pressure_score": 46.416666666666664,
     "trend_score": 35.0,
-    "optix": 48.113070465035086
+    "optix": 39.42645543455107
   },
   "interpretation": {
     "0_to_20": "oversold / possible buy zone",

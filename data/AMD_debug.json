@@ -1,7 +1,7 @@
 {
   "ticker": "AMD",
   "rows_written": 500,
-  "historical_options_days_found": 16,
+  "historical_options_days_found": 27,
   "latest_row": {
     "date": "2026-09-04",
     "ticker": "AMD",
@@ -11,10 +11,10 @@
     "avg_daily_volume": 26911002.0,
     "days_to_cover": 1.49,
     "short_volume_ratio": 55.35,
-    "call_volume": null,
-    "put_volume": null,
-    "put_call_volume_ratio": null,
-    "total_options_volume": null,
+    "call_volume": 4677.0,
+    "put_volume": 58.0,
+    "put_call_volume_ratio": 0.012401111823818688,
+    "total_options_volume": 4735.0,
     "rsi14": 40.0982167734745,
     "stoch20": 36.767989009101804,
     "dist_ma20": 0.00499266094623807,
@@ -24,10 +24,10 @@
     "roc20": -0.01197864945382332,
     "ma50_slope": -0.028806804499036054,
     "price_exhaustion_score": 36.59750382659646,
-    "options_fear_greed_score": 50.0,
+    "options_fear_greed_score": 63.55555555555556,
     "short_pressure_score": 15.861111111111109,
     "trend_score": 50.0,
-    "optix": 38.84804338863508
+    "optix": 43.59248783307952
   },
   "interpretation": {
     "0_to_20": "oversold / possible buy zone",
