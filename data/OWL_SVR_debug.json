@@ -1,20 +1,20 @@
 {
   "ticker": "OWL",
-  "rows_written": 252,
+  "rows_written": 251,
   "latest_row": {
-    "date": "2026-08-13",
+    "date": "2026-10-15",
     "ticker": "OWL",
-    "total_volume": 12729624.78,
-    "short_volume": 5966308.86,
-    "short_volume_ratio": 46.87,
-    "carteret_pct_of_short": 97.4884,
-    "nyse_short_volume": 141404,
-    "nasdaq_carteret_short_volume": 5816457,
-    "nasdaq_chicago_short_volume": 8447,
+    "total_volume": 9333538.89,
+    "short_volume": 3214621.11,
+    "short_volume_ratio": 34.44,
+    "carteret_pct_of_short": 94.7778,
+    "nyse_short_volume": 138443,
+    "nasdaq_carteret_short_volume": 3046746,
+    "nasdaq_chicago_short_volume": 29431,
     "adf_short_volume": 0,
-    "exempt_volume": 3000.0,
-    "svr_sma20": 49.206,
-    "svr_zscore60": -0.3744
+    "exempt_volume": 10464.0,
+    "svr_sma20": 45.2185,
+    "svr_zscore60": -1.2018
   },
   "how_to_read": {
     "short_volume_ratio": "Daily % of total volume sold short. 50% is typical.",
