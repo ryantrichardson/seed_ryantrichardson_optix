@@ -1,7 +1,7 @@
 {
   "ticker": "OWL",
-  "rows_written": 501,
-  "historical_options_days_found": 53,
+  "rows_written": 500,
+  "historical_options_days_found": 123,
   "latest_row": {
     "date": "2026-11-25",
     "ticker": "OWL",
@@ -11,10 +11,10 @@
     "avg_daily_volume": 18697419.0,
     "days_to_cover": 4.97,
     "short_volume_ratio": 40.82,
-    "call_volume": null,
-    "put_volume": null,
-    "put_call_volume_ratio": null,
-    "total_options_volume": null,
+    "call_volume": 412.0,
+    "put_volume": 129.0,
+    "put_call_volume_ratio": 0.3131067961165049,
+    "total_options_volume": 541.0,
     "rsi14": 36.92307692307692,
     "stoch20": 22.162162162162176,
     "dist_ma20": -0.0573183213920162,
@@ -24,10 +24,10 @@
     "roc20": -0.04756980351602891,
     "ma50_slope": -0.06263699374025011,
     "price_exhaustion_score": 32.74750024750025,
-    "options_fear_greed_score": 50.0,
+    "options_fear_greed_score": 31.333333333333332,
     "short_pressure_score": 58.277777777777786,
     "trend_score": 35.0,
-    "optix": 42.72804177804178
+    "optix": 36.194708444708446
   },
   "interpretation": {
     "0_to_20": "oversold / possible buy zone",

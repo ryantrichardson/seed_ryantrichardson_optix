@@ -1,7 +1,7 @@
 {
   "ticker": "SOXL",
-  "rows_written": 501,
-  "historical_options_days_found": 22,
+  "rows_written": 500,
+  "historical_options_days_found": 119,
   "latest_row": {
     "date": "2026-11-25",
     "ticker": "SOXL",
@@ -11,10 +11,10 @@
     "avg_daily_volume": 249846503.0,
     "days_to_cover": 1.0,
     "short_volume_ratio": 48.42,
-    "call_volume": 474.0,
-    "put_volume": 6973.0,
-    "put_call_volume_ratio": 14.710970464135022,
-    "total_options_volume": 7447.0,
+    "call_volume": 27133.0,
+    "put_volume": 2260.0,
+    "put_call_volume_ratio": 0.08329340655290605,
+    "total_options_volume": 29393.0,
     "rsi14": 44.80084596404653,
     "stoch20": 1.5941826317997538,
     "dist_ma20": -0.42175550117834004,
@@ -24,10 +24,10 @@
     "roc20": -0.7017233348858872,
     "ma50_slope": -0.19243495803374944,
     "price_exhaustion_score": 13.027328577532998,
-    "options_fear_greed_score": 69.99999999999999,
+    "options_fear_greed_score": 96.02105263157894,
     "short_pressure_score": 61.75,
     "trend_score": 35.0,
-    "optix": 41.37479785988984
+    "optix": 50.48216628094248
   },
   "interpretation": {
     "0_to_20": "oversold / possible buy zone",
